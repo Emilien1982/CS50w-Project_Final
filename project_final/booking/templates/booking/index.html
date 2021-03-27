@@ -19,29 +19,50 @@
   <body>
     <nav class="navbar navbar-expand-lg sticky-top navbar-light bg-light">
         <div class="container-fluid">
-        <div class="container">
-            <a class="navbar-brand" href="#">
-                <img src="{% static 'booking/icon.png' %}" alt="restaurant logo" class="logo">
-            </a>
-        </div>
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <img src="{% static 'booking/icon.png' %}" alt="restaurant logo" class="logo">
+                </a>
+            </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#presentation" id="nav-home">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#available" id="nav-available">Availability</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" tabindex="-1" href="#contact" id="nav-contact">Contact</a>
-                </li>
-            </ul>
-          </div>
+                    {% if not user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#presentation" id="nav-home">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#available" id="nav-available">Availability</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" tabindex="-1" href="#contact" id="nav-contact">Contact</a>
+                        </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#presentation" id="nav-home">Booking</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{% url 'deleted' %}" id="nav-home">Deleted</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#presentation" id="nav-home">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#presentation" id="nav-home">Home</a>
+                        </li>
+                    {% endif %}
+                    {% if user.is_authenticated and user.group="manager"%}
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#presentation" id="nav-home">Home</a>
+                        </li>
+                    {% endif %}
+                    </ul>
+                </div>
         </div>
-      </nav>
+    </nav>
     <section id="presentation">
         <div class="container">
             <div id="block-logo">
