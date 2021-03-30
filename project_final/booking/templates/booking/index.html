@@ -99,17 +99,17 @@
 
     <!-- ###### STAFF & MAMAGER USER ####### -->
     {% if user.is_authenticated %}
-        <section id="booking">
+        <section id="booking" class="hidden">
             <div class="container">
                 
             </div>
         </section>
-        <section id="deleted">
+        <section id="deleted" class="hidden">
             <div class="container">
                 
             </div>
         </section>
-        <section id="person">
+        <section id="person" class="hidden">
             <div class="container">
                 
             </div>
@@ -119,38 +119,7 @@
 <!-- UTILISER % include  % pour éclater les html en plusieurs fichiers? -->
         {% if  user.groups.all.0.name == "manager" %}
             <!-- TABLE PAGE -->
-            <section id="table">
-                <div class="container">
-                    <div id="existing-tables">
-                        <h2>Existing tables</h2>
-                        
-                        <table>
-                            {% regroup tables by get_area_display as area_list %}
-                            {% for area,tables_in_area in area_list %}
-                                <tr><td>{{ area }}</td><td></td><td></td><td></td></tr>
-                                {% for table in tables_in_area %}
-                                    <tr>
-                                        <td></td>
-                                        <td id="edit-table-{{ table.id }}" class="edit-table">Edit</td>
-                                        <td>{{ table }}</td>
-                                        <td id="delete-table-{{ table.id }}" class="edit-table">Delete</td>
-                                    </tr>
-                                {% endfor %}
-                            {% endfor %}
-                      </table>
-                    </div>
-                    <div id="create-table">
-                        <h2>Create tables</h2>
-                        <form action="{% url 'table' %}" method="POST">
-                            {% csrf_token %}
-                            <table>
-                                {{ table_form.as_table }}
-                            </table>
-                            <input type="submit" value="Create table">
-                        </form>
-                    </div>
-                </div>
-            </section>
+            {% include "booking/page.html" %}
             <section id="extra-date">
                 <div class="container">
                     

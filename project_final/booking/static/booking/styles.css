@@ -66,3 +66,35 @@ iframe {
     width: 100%;
     height: auto; 
 }
+
+.edit-table, .delete-table {
+    color:rgb(27, 126, 32);
+}
+
+.edit-table:hover, .delete-table:hover {
+    cursor: pointer;
+    color:hotpink;
+}
+
+.hidden {
+    display: none;
+}
+
+#existing-tables th {
+    font-size: 0.9rem;
+    font-weight: normal;
+    text-align: left;
+    margin: 0;
+    width: 4em;
+}
+
+#existing-tables button {
+    font-size: 0.7rem;
+    padding: 0;
+    width: 4em;
+}
+
+.center-cell {
+    width: 10em;
+    /* padding: 0 4em; */
+}

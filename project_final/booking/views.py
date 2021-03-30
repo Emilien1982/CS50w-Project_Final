@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import HttpResponse, HttpResponseRedirect, render
 from django.urls import reverse
 from datetime import datetime, timedelta
+from json import dumps
 
 from .models import User, Table, Client, DateClosed, Booking, TableForm
 
@@ -61,7 +62,9 @@ def table(request):
 
         return render(request, "booking/index.html", {
             "tables": tables,
-            "table_form": table_form
+            "table_form": table_form,
+            # pass tables data as JSON format for javascript usage (when editing table for example)
+            "tables_data": dumps(list(tables.values()))
         })
 
 def person(request):
