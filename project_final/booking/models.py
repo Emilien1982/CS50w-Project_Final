@@ -5,7 +5,7 @@ from django.forms import ModelForm
 
 CAPACITY_CHOICES = [
     (2, "2"),
-    (4, "8"),
+    (4, "4"),
     (6, "6"),
     (8, "8"),
     (10, "10"),
@@ -19,7 +19,7 @@ FORM_TYPE_CHOICES = [
 ]
 
 AREA_CHOICES = [
-    ("UPS", "Up Stair"),
+    ("UP", "Up Stair"),
     ("EXT", "Exterior"),
     ("MAI", "Main Room")
 ]
@@ -33,10 +33,11 @@ class Table(models.Model):
     is_active = models.BooleanField(default=True)
     is_joker = models.BooleanField(default=False)
     is_for_disabled = models.BooleanField(default=False)
-    reference = models.CharField(max_length=6, unique=True)
+    reference = models.CharField(max_length=6, unique=True, help_text="enter 6 characters max")
     area = models.CharField(
         max_length=3,
-        choices=AREA_CHOICES
+        choices=AREA_CHOICES,
+        default="MAI"
     )
     capacity = models.IntegerField(
         choices=CAPACITY_CHOICES,
@@ -44,7 +45,8 @@ class Table(models.Model):
     )
     form_type = models.CharField(
         max_length=1,
-        choices=FORM_TYPE_CHOICES
+        choices=FORM_TYPE_CHOICES,
+        verbose_name="Table height"
     )
     def __str__(self):
         return self.reference
