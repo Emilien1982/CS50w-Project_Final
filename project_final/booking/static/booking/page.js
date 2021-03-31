@@ -1,35 +1,52 @@
 const edit_section = document.getElementById("edit_section");
 
-/* get all the data on tables from data of <table> as JSON */
+///// get all the data on tables from data of <table> as JSON
 const tables_data = JSON.parse(document.querySelector("#existing-tables > table").dataset.tables_data);
 
-///// Get elements and function to manage editing reference
-var other_references = [];
-/* select the reference input */
-const ref_input = document.querySelector("#edit_section input[name='reference']");
-ref_input.setAttribute("autocomplete", "off");
-/* select the alert p */
-const ref_alert = document.getElementById("reference-alert");
-/* select the submit btn */
-const edit_submit_btn = edit_section.querySelector("input[value='Update table']");
-/* add the Onchange event */
-ref_input.addEventListener('input', event => {
-    ref_input.style.background = "white";
-    ref_alert.style.opacity = "0";
-    /* ref_alert.setAttribute("class", "d-none"); */
-    for (otherRef of other_references) {
-        if (ref_input.value === otherRef) {
-            ref_input.style.background = "#F8D7DA";
-            ref_alert.innerText = `${otherRef} is already used on an existing table.`;
-            ref_alert.style.opacity = "1";
-            /* ref_alert.removeAttribute("class", "d-none"); */
+
+//// function that check the inputed reference in real time. Used with the create form and the edit form
+const reference_checker = (input, alert, submit, forbidden_references) => {
+    submit.removeAttribute("disabled", "");
+    input.style.background = "white";
+    alert.style.opacity = "0";
+    for (reference of forbidden_references) {
+        if (input.value === reference) {
+            submit.setAttribute("disabled", "");
+            input.style.background = "#F8D7DA";
+            alert.innerText = `${reference} is already used on an existing table.`;
+            alert.style.opacity = "1";
             break;
         }
     }
+}
+
+
+////// Get elements and eventListener to manage CREATING table - reference checker
+let all_references = [];
+for (const table_data of tables_data) {
+    all_references.push(table_data.reference);
+}
+const create_ref_input = document.querySelector("#create-table input[name='reference']");
+create_ref_input.setAttribute("autocomplete", "off");
+const create_ref_alert = document.getElementById("create-reference-alert");
+const create_submit_btn = document.querySelector("input[value='Create table']");
+create_ref_input.addEventListener('input', () => {
+    reference_checker(create_ref_input, create_ref_alert, create_submit_btn, all_references)
 });
 
 
-/* Handle cliking on Edit table button */
+///// Get elements and eventListener to manage EDITING reference
+var other_references = [];
+const edit_ref_input = document.querySelector("#edit_section input[name='reference']");
+edit_ref_input.setAttribute("autocomplete", "off");
+const edit_ref_alert = document.getElementById("reference-alert");
+const edit_submit_btn = edit_section.querySelector("input[value='Update table']");
+edit_ref_input.addEventListener('input', () => {
+    reference_checker(edit_ref_input, edit_ref_alert, edit_submit_btn, other_references)
+});
+
+
+///// Handle cliking on Edit table button
 const edit_btns = document.getElementsByClassName("edit-table");
 
 for (const edit_btn of edit_btns) {
@@ -83,6 +100,13 @@ for (const edit_btn of edit_btns) {
 }; 
 
 
+////// Handle cliking on Delete button
+const delete_btns = document.getElementsByClassName("delete-table");
 
-
-/* AJOUTER UN CHECK DE LA REFERENCE (QUI DOIT ETRE UNIQUE) LORS DE L EDIT D'une TABLE */
+for (const delete_btn of delete_btns) {
+    delete_btn.addEventListener('click', event => {
+        const delete_table_id = event.target.dataset.table_id;
+        fetch(`/table_delete/${delete_table_id}`)
+        .then(() => document.location.reload())
+    });
+};

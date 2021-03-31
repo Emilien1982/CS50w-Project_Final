@@ -24,6 +24,7 @@
         <div id="create-table">
             <h2>Create tables</h2>
 
+            <div id="create-reference-alert" class="alert alert-danger" role="alert"></div>
             <form action="{% url 'table' %}" method="POST">
                 {% csrf_token %}
                 <table>

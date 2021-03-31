@@ -48,6 +48,7 @@ def deleted(request):
 def booking(request):
     return render(request, "booking/index.html")
 
+@login_required
 def table(request):
     if request.method == "POST":
         table_form = TableForm(request.POST)
@@ -69,6 +70,7 @@ def table(request):
             "tables_data": dumps(list(tables.values()))
         })
 
+@login_required
 def table_update(request, table_id):
     if request.method == "POST":
         table_old = Table.objects.get(pk=table_id)
@@ -81,6 +83,15 @@ def table_update(request, table_id):
             return HttpResponse('transmited data are invalid', status=403)
     else:
         return HttpResponse(status=405)
+
+@login_required
+def table_delete(request, table_id):
+    table_to_delete = Table.objects.get(pk=table_id)
+    delete_fct_return = table_to_delete.delete()
+    if delete_fct_return[0] == 1:
+        return HttpResponseRedirect(reverse("table"))
+    else:
+        return HttpResponse("The table hasn't been deleted", status=403)
 
 def person(request):
     pass
