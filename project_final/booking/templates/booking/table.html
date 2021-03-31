@@ -1,8 +1,8 @@
 <section id="table">
     <div class="container">
+
         <div id="existing-tables">
             <h2>Existing tables</h2>
-            
             <table data-tables_data="{{ tables_data }}">
                 {% regroup tables by get_area_display as area_list %}
                 {% for area,tables_in_area in area_list %}
@@ -17,31 +17,10 @@
                     {% endfor %}
                 {% endfor %}
             </table>
-
-        <!-- Modal -->
-        <div class="modal fade" id="edit_section" tabindex="-1" aria-labelledby="edit_section_label" aria-hidden="true">
-            <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h5 class="modal-title" id="edit_section_label">Edit Table</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form action="{% url 'table' %}" method="PUT">
-                        {% csrf_token %}
-                        <table>
-                            {{ table_form.as_table }}
-                        </table>
-                        <input  type="submit" value="Update table">
-                    </form>
-                </div>
-            </div>
-            </div>
         </div>
-
+        
         <hr>
 
-        </div>
         <div id="create-table">
             <h2>Create tables</h2>
 
@@ -53,5 +32,28 @@
                 <input type="submit" value="Create table">
             </form>
         </div>
+
+        <!-- Modal For Editing Table -->
+        <div id="edit_section" class="modal fade" tabindex="-1" aria-labelledby="edit_section_label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="edit_section_label">Edit Table</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="reference-alert" class="alert alert-danger" role="alert"></div>
+                        <form action="" method="POST">
+                            {% csrf_token %}
+                            <table>
+                                {{ table_form.as_table }}
+                            </table>
+                            <input  type="submit" value="Update table">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </section>

@@ -53,9 +53,11 @@ def table(request):
         table_form = TableForm(request.POST)
         if table_form.is_valid():
             table_form.save()
+            print("JUST BEFORE RELOAD")
             return HttpResponseRedirect(reverse("table"))
         else:
             print("table_form is not valid!")
+            return HttpResponse('transmited data are invalid', status=403)
     else:
         tables = Table.objects.all().order_by('area', 'reference')
         table_form = TableForm()
@@ -66,6 +68,19 @@ def table(request):
             # pass tables data as JSON format for javascript usage (when editing table for example)
             "tables_data": dumps(list(tables.values()))
         })
+
+def table_update(request, table_id):
+    if request.method == "POST":
+        table_old = Table.objects.get(pk=table_id)
+        table_updated = TableForm(request.POST, instance=table_old)
+        if table_updated.is_valid():
+            table_updated.save()
+            return HttpResponseRedirect(reverse("table"))
+        else:
+            print("transmited data are invalid")
+            return HttpResponse('transmited data are invalid', status=403)
+    else:
+        return HttpResponse(status=405)
 
 def person(request):
     pass

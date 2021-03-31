@@ -98,3 +98,8 @@ iframe {
     width: 10em;
     /* padding: 0 4em; */
 }
+
+#reference-alert {
+    opacity: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
