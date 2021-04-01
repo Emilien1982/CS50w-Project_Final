@@ -12,7 +12,7 @@
                             <th></th>
                             <td><button type="button" class="btn btn-sm btn-warning edit-table" data-table_id="{{ table.id }}" data-bs-toggle="modal" data-bs-target="#edit_section">Edit</button></td>
                             <td class="center-cell">{{ table }}</td>
-                            <td><button type="button" class="btn btn-sm btn-warning delete-table" data-table_id="{{ table.id }}">Delete</button></td>
+                            <td><button type="button" class="btn btn-sm btn-warning delete-table" data-table_id="{{ table.id }}" data-table_ref="{{ table.reference }}" data-bs-toggle="modal" data-bs-target="#delete_confirmation">Delete</button></td>
                         </tr>
                     {% endfor %}
                 {% endfor %}
@@ -51,6 +51,23 @@
                             </table>
                             <input  type="submit" value="Update table">
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal For Deleting Table -->
+        <div id="delete_confirmation" class="modal fade" tabindex="-1" aria-labelledby="delete_confirmation_label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="delete_confirmation_label">Delete Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="delete_message">Are you sure, you want do delete this table?</p>
+                        <button id="delete_confirm_btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yes, delete it!</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">No, keep it</button>
                     </div>
                 </div>
             </div>

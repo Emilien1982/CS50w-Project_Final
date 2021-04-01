@@ -96,8 +96,12 @@ def table_delete(request, table_id):
 def person(request):
     pass
 
+@login_required
 def extra_date(request):
     pass
+#    return  render(request, "booking/index.html", {
+#
+#    }
 
 def staff(request):
     pass

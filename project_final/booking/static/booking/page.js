@@ -3,7 +3,6 @@ const edit_section = document.getElementById("edit_section");
 ///// get all the data on tables from data of <table> as JSON
 const tables_data = JSON.parse(document.querySelector("#existing-tables > table").dataset.tables_data);
 
-
 //// function that check the inputed reference in real time. Used with the create form and the edit form
 const reference_checker = (input, alert, submit, forbidden_references) => {
     submit.removeAttribute("disabled", "");
@@ -66,6 +65,7 @@ for (const edit_btn of edit_btns) {
                 other_references_temp.push(table["reference"]);
             }
         }
+        
         /* set up the global varaible other_references */
         other_references = other_references_temp;
 
@@ -74,7 +74,9 @@ for (const edit_btn of edit_btns) {
 
         /* fill up the edit form */
         for (const [key, value] of Object.entries(edited_table_data)) {
+            console.log(`key: ${key} || value: ${value}`);
             for (input of edit_form_inputs) {
+                console.log(input);
                 if (input.name === key) {
                     if (input.type === "checkbox")
                         if (value) {
@@ -94,7 +96,7 @@ for (const edit_btn of edit_btns) {
                 }
             }
         }
-        /* Update the model title */
+        /* Update the modal title */
         document.getElementById('edit_section_label').innerText = `Edit Table ${edited_table_data.reference}`;
     });
 }; 
@@ -102,11 +104,21 @@ for (const edit_btn of edit_btns) {
 
 ////// Handle cliking on Delete button
 const delete_btns = document.getElementsByClassName("delete-table");
+const delete_confirm_btn = document.getElementById("delete_confirm_btn");
+const delete_message = document.getElementById("delete_message");
 
 for (const delete_btn of delete_btns) {
-    delete_btn.addEventListener('click', event => {
-        const delete_table_id = event.target.dataset.table_id;
-        fetch(`/table_delete/${delete_table_id}`)
-        .then(() => document.location.reload())
+    delete_btn.addEventListener('click', () => {
+        const table_ref = delete_btn.dataset.table_ref;
+        delete_message.innerHTML = `Are you sure, you want do delete table ${table_ref}?`;
+        const table_id = delete_btn.dataset.table_id;
+        delete_confirm_btn.setAttribute("data-table_id", table_id);
     });
 };
+
+
+delete_confirm_btn.addEventListener('click', event => {
+    const delete_table_id = event.target.dataset.table_id;
+    fetch(`/table_delete/${delete_table_id}`)
+    .then(() => document.location.reload())
+});
