@@ -10,10 +10,11 @@ urlpatterns = [
     path('booking', views.booking, name="booking"),
     path('table', views.table, name="table"),
     path('person', views.person, name="person"),
-    path('extra_date', views.extra_date, name="extra_date"),
+    path('date_special', views.date_special, name="date_special"),
     path('staff', views.staff, name="staff"),
 
     # API Routes
     path('table/<int:table_id>', views.table_update, name="table_update"),
-    path('table_delete/<int:table_id>', views.table_delete, name="table_delete")
+    path('table_delete/<int:table_id>', views.table_delete, name="table_delete"),
+    path('weekday_update', views.weekday_update, name="weekday_update")
 ]

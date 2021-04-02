@@ -6,7 +6,7 @@ from django.urls import reverse
 from datetime import datetime, timedelta
 from json import dumps
 
-from .models import User, Table, Client, DateClosed, Booking, TableForm
+from .models import User, Table, Client, WeekDayOpened, DateSpecial, Booking, TableForm
 
 
 # Create your views here.
@@ -97,11 +97,47 @@ def person(request):
     pass
 
 @login_required
-def extra_date(request):
-    pass
-#    return  render(request, "booking/index.html", {
-#
-#    }
+def weekday_update(request):
+    if request.method == 'POST':
+        weekday_form_data = request.POST
+        # starting with a weekdays variable with every time set to False
+        # because the POST request only include checked box, unchecked ones are don't appear in the POST data
+        weekdays = {
+            'mon': {'lun': False, 'din': False},
+            'tue': {'lun': False, 'din': False},
+            'wed': {'lun': False, 'din': False},
+            'thu': {'lun': False, 'din': False},
+            'fri': {'lun': False, 'din': False},
+            'sat': {'lun': False, 'din': False},
+            'sun': {'lun': False, 'din': False}
+        }
+        # Update the weekdays variable with the data from the POST request
+        for field in weekday_form_data:
+            if len(field) == 7 and weekday_form_data[field] == 'on':
+                day = field[:3]
+                time = field[4:]
+                weekdays[day][time] = True
+
+        # iterate over the weekdays variable to update the database. Using the existing instance of each days.
+        for day in weekdays:
+            #day_instance = WeekDayOpened.objects.get_or_create(weekday=day)
+            #Use the above line (instead of the line above) if the database is empty
+            day_instance = WeekDayOpened.objects.get(weekday=day)
+            day_instance.is_opened_lunch = weekdays[day]['lun']
+            day_instance.is_opened_dinner = weekdays[day]['din']
+            day_instance.save()
+
+        return HttpResponseRedirect(reverse("date_special"))
+    else:
+        return HttpResponse("Wrong method.", status=400)
+
+@login_required
+def date_special(request):
+    return  render(request, "booking/index.html", {
+        "dates": True,
+        "weekdays": WeekDayOpened.objects.all(),
+        "y": ['monday', 'tuesday', 'wednesday']
+    })
 
 def staff(request):
     pass

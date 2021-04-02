@@ -74,9 +74,7 @@ for (const edit_btn of edit_btns) {
 
         /* fill up the edit form */
         for (const [key, value] of Object.entries(edited_table_data)) {
-            console.log(`key: ${key} || value: ${value}`);
             for (input of edit_form_inputs) {
-                console.log(input);
                 if (input.name === key) {
                     if (input.type === "checkbox")
                         if (value) {
