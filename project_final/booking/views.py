@@ -6,7 +6,7 @@ from django.urls import reverse
 from datetime import datetime, timedelta
 from json import dumps
 
-from .models import User, Table, Client, WeekDayOpened, DateSpecial, Booking, TableForm
+from .models import User, Table, Client, WeekDayOpened, DateSpecial, Booking, TableForm, DateForm
 
 
 # Create your views here.
@@ -133,10 +133,13 @@ def weekday_update(request):
 
 @login_required
 def date_special(request):
+    date_form = DateForm()
+    today = datetime.today()
     return  render(request, "booking/index.html", {
-        "dates": True,
         "weekdays": WeekDayOpened.objects.all(),
-        "y": ['monday', 'tuesday', 'wednesday']
+        "dates": DateSpecial.objects.filter(date__gte=datetime.today()),
+        "date_form": date_form,
+        "today": today.strftime('%Y-%m-%d')
     })
 
 def staff(request):

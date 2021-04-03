@@ -6,7 +6,7 @@
         <div id="opened-weekdays">
             <!-- Visible part -->
             <div>
-                <p>The restaurant is opened on:</p>
+                <h2>The restaurant is opened on:</h2>
                 <table>
                     <thead>
                         <tr>
@@ -26,16 +26,16 @@
                     </tbody>
                 </table>
                 <!-- Button trigger modal -->
-                <button type="button" id="change-wdays-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                <button type="button" id="change-wdays-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#weekdays_edit">
                     Change
                 </button>
             </div>
             <!-- Pop up "Change" part -->
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal fade" id="weekdays_edit" tabindex="-1" aria-labelledby="weekdays_editLabel" aria-hidden="true">
                 <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Edit Opening Weekdays</h5>
+                    <h3 class="modal-title" id="weekdays_editLabel">Edit Opening Weekdays</h3>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -121,18 +121,96 @@
                     </div>
                     <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    
                     </div>
                 </div>
                 </div>
             </div>
-
         </div>
 
         <hr>
 
         <div id="date-list">
+            <!-- visible part -->
+            <div>
+                <h2>Special dates list</h2>
+                <table class="table table-light">
+                    <thead>
+                        <tr>
+                            <td>Date</td>
+                            <td>Open / Close</td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for date in dates %}
+                            <tr>
+                                <td>{{ date.date|date:"D d M Y" }}</td>
+                                <td>{{ date.state }}</td>
+                                <td><button class="btn btn-sm btn-primary" type="button">Remove</button></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_dates">
+                Add Date(s)
+            </button>
 
+            <!-- pop up "Add date" part -->
+            <div>
+                <!-- Modal -->
+                <div class="modal fade" id="add_dates" tabindex="-1" aria-labelledby="add_datesLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="add_datesLabel">Enter the special date(s)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/date_special">
+                                <table>
+                                    <tr>
+                                        <td colspan="2">
+                                            <ul>
+                                                <li><label for="single_day">
+                                                    <input type="radio" name="period" value="no" id="single_day" class="period_radio" checked>
+                                                    Single day</label>
+                                                </li>
+                                                    <li><label for="period">
+                                                    <input type="radio" name="period" value="yes" id="period" class="period_radio">
+                                                    Period</label>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <label for="date" id="date_label">Date</label>
+                                        </td>
+                                        <td>
+                                            <input type="date" id="date" name="date" value="{{ today }}" min="{{ today }}">
+                                        </td>
+                                    </tr>
+                                    <tr id="date_end_row">
+                                        <td>
+                                            <label for="date_end" id="date_end_label">To</label>
+                                        </td>
+                                        <td>
+                                            <input type="date" id="date_end" name="date_end" value="{{ today }}" min="{{ today }}">
+                                        </td>
+                                    </tr>
+                                    {{ date_form }}
+                                </table>
+                                <button class="btn btn-primary" type="submit">Add</button>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <hr>

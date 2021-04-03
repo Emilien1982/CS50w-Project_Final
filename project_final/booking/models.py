@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.forms import ModelForm
+from django import forms
 
 
 CAPACITY_CHOICES = [
@@ -90,14 +91,14 @@ class WeekDayOpened(models.Model):
 
 class DateSpecial(models.Model):
     date = models.DateField(unique=True)
-    at_lunch = models.BooleanField(default=True)
-    at_dinner = models.BooleanField(default=True)
     state = models.CharField(
         max_length=1,
         choices=STATE_CHOICES,
         default="C",
-        verbose_name="The restaurant is: "
+        verbose_name="The restaurant is"
     )
+    at_lunch = models.BooleanField(default=True)
+    at_dinner = models.BooleanField(default=True)
 
 class Booking(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="booker")
@@ -119,4 +120,7 @@ class TableForm(ModelForm):
 class DateForm(ModelForm):
     class Meta:
         model = DateSpecial
-        fields = '__all__'
+        exclude = ['date']
+        widgets = {
+            'state': forms.RadioSelect
+        }
