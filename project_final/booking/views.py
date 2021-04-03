@@ -140,17 +140,29 @@ def date_special(request):
             return HttpResponse("You can't add a date earlier than today", status=403)
         if start > end:
             return HttpResponse("You can't provide a end date earlier than start date", status=403)
+        fields_list = request.POST.keys()
+        if not 'at_lunch' in fields_list and not 'at_dinner' in fields_list:
+            return HttpResponse("Lunch and Dinner checkboxes can't be both unchecked at the same time", status=403)
 
-        # Create ou Update the start date
-        date_temp, created = DateSpecial.objects.get_or_create(
-            date=start
-        )
-        date_detailed = DateForm(request.POST, instance=date_temp)
-        if date_detailed.is_valid():
-            date_detailed.save()
-            return HttpResponseRedirect(reverse("date_special"))
-        else:
+        # Deal with a period (start to end) if applicable
+        if request.POST['period'] == "no":
+            # if single date, set the end equal start to run the while loop only once
+            end=start
+
+        problem_happened=False
+        delta = timedelta(days=1)
+        while start <= end:
+            # Create ou Update the start date
+            date_temp, created = DateSpecial.objects.get_or_create(date=start)
+            date_detailed = DateForm(request.POST, instance=date_temp)
+            if date_detailed.is_valid():
+                date_detailed.save()
+            else:
+                problem_happened=True
+            start += delta
+        if problem_happened:
             return HttpResponse("Something gone wrong", status=403)
+        return HttpResponseRedirect(reverse("date_special"))
 
     else:
         date_form = DateForm()

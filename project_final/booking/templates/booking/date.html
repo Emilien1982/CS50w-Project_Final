@@ -138,14 +138,22 @@
                         <tr>
                             <td>Date</td>
                             <td>Open / Close</td>
+                            <td>Lunch</td>
+                            <td>Dinner</td>
                             <td></td>
                         </tr>
                     </thead>
                     <tbody>
                         {% for date in dates %}
                             <tr>
-                                <td>{{ date.date|date:"D d M Y" }}</td>
-                                <td>{{ date.state }}</td>
+                                <td>{{ date.date|date:"d M Y - D" }}</td>
+                                <td class="date_state">{{ date.state }}</td>
+                                <td>
+                                    {% if date.at_lunch %} ✔️ {% else %} - {% endif %}
+                                </td>
+                                <td>
+                                    {% if date.at_dinner %} ✔️ {% else %} - {% endif %}
+                                </td>
                                 <td><button class="btn btn-sm btn-primary date_delete" data-date_id='{{ date.id }}' type="button">Remove</button></td>
                             </tr>
                         {% endfor %}
