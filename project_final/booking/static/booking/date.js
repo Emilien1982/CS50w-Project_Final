@@ -31,3 +31,24 @@ date_start_input.addEventListener('input', event => {
         date_end_input.value = start;
     }
 })
+
+//// Manage the weekday displayed next to the date inputs
+//// both start and end weekday are re-evalued on evry change of each date input
+const date_inputs = document.querySelectorAll('input[type="date"]');
+for (input of date_inputs) {
+    input.addEventListener('input', () => {
+        for (const inputy of date_inputs) {
+            const new_date = new Date(inputy.value);
+            const day_num = new_date.getDay();
+            const day_string = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day_num];
+            // the place to diplay the weekday is just next to the date input
+            inputy.nextElementSibling.innerText = day_string;
+        }
+        
+    })
+}
+
+
+
+
+console.log(date_inputs);

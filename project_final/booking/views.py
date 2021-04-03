@@ -35,11 +35,9 @@ def logout_view(request):
 
 
 def index(request):
-    today = datetime.today()
-    booking_end = today + timedelta(days=62)
     return render(request, "booking/index.html", {
-        "today": today.strftime('%Y-%m-%d'),
-        "booking_end": booking_end.strftime('%Y-%m-%d'),
+        "today": datetime.today(),
+        "booking_end": datetime.today() + timedelta(days=62)
     })
 
 def deleted(request):
@@ -134,12 +132,12 @@ def weekday_update(request):
 @login_required
 def date_special(request):
     date_form = DateForm()
-    today = datetime.today()
+    #today = datetime.today()
     return  render(request, "booking/index.html", {
         "weekdays": WeekDayOpened.objects.all(),
         "dates": DateSpecial.objects.filter(date__gte=datetime.today()),
         "date_form": date_form,
-        "today": today.strftime('%Y-%m-%d')
+        "today": datetime.today()
     })
 
 def staff(request):

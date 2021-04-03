@@ -188,7 +188,8 @@
                                             <label for="date" id="date_label">Date</label>
                                         </td>
                                         <td>
-                                            <input type="date" id="date" name="date" value="{{ today }}" min="{{ today }}">
+                                            <input type="date" id="date" name="date" value="{{ today|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}">
+                                            <span class="weekday_display">{{ today|date:"l" }}</span>
                                         </td>
                                     </tr>
                                     <tr id="date_end_row">
@@ -196,7 +197,8 @@
                                             <label for="date_end" id="date_end_label">To</label>
                                         </td>
                                         <td>
-                                            <input type="date" id="date_end" name="date_end" value="{{ today }}" min="{{ today }}">
+                                            <input type="date" id="date_end" name="date_end" value="{{ today|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}">
+                                            <span class="weekday_display">{{ today|date:"l" }}</span>
                                         </td>
                                     </tr>
                                     {{ date_form }}

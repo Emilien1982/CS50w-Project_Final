@@ -120,3 +120,8 @@ iframe {
 #date_end_row {
     opacity: 0;
 }
+
+.weekday_display {
+    display: inline-block;
+    width: 4em;
+}

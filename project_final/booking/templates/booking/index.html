@@ -71,8 +71,8 @@
                     <label for="date-select2">Select your date:</label>
                     <!-- Créer une alternative pour safari qui ne supporte pas input type="date" -->
                     <input type="date" id="date-select2" name="date-select2"
-                        value="{{ today }}"
-                        min="{{ today }}" max="{{ booking_end }}">
+                        value="{{ today|date:'Y-m-d' }}"
+                        min="{{ today|date:'Y-m-d' }}" max="{{ booking_end|date:'Y-m-d' }}">
                     <button id="btn-available2">Find</button>
                     <div class="available2-result">
                     </div>
