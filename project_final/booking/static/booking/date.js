@@ -33,7 +33,7 @@ date_start_input.addEventListener('input', event => {
 })
 
 //// Manage the weekday displayed next to the date inputs
-//// both start and end weekday are re-evalued on evry change of each date input
+    // both start and end weekday are re-evalued on evry change of each date input
 const date_inputs = document.querySelectorAll('input[type="date"]');
 for (input of date_inputs) {
     input.addEventListener('input', () => {
@@ -44,11 +44,15 @@ for (input of date_inputs) {
             // the place to diplay the weekday is just next to the date input
             inputy.nextElementSibling.innerText = day_string;
         }
-        
     })
 }
 
-
-
-
-console.log(date_inputs);
+/////  Manage the delete button of every existing dates
+const delete_btns = document.getElementsByClassName("date_delete");
+for (const delete_btn of delete_btns) {
+    delete_btn.addEventListener('click', () => {
+        const date_id = delete_btn.dataset.date_id;
+        fetch(`date_detete/${date_id}`)
+        .then(delete_btn.parentElement.parentElement.remove())
+    })
+}

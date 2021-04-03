@@ -26,8 +26,8 @@ AREA_CHOICES = [
 ]
 
 STATE_CHOICES = [
-    ("O", "Opened"),
-    ("C", "Closed")
+    ("Open", "Opened"),
+    ("Close", "Closed")
 ]
 
 WEEKDAY_CHOICES = [
@@ -92,9 +92,9 @@ class WeekDayOpened(models.Model):
 class DateSpecial(models.Model):
     date = models.DateField(unique=True)
     state = models.CharField(
-        max_length=1,
+        max_length=5,
         choices=STATE_CHOICES,
-        default="C",
+        default="Close",
         verbose_name="The restaurant is"
     )
     at_lunch = models.BooleanField(default=True)

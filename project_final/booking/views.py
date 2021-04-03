@@ -131,14 +131,44 @@ def weekday_update(request):
 
 @login_required
 def date_special(request):
-    date_form = DateForm()
-    #today = datetime.today()
-    return  render(request, "booking/index.html", {
-        "weekdays": WeekDayOpened.objects.all(),
-        "dates": DateSpecial.objects.filter(date__gte=datetime.today()),
-        "date_form": date_form,
-        "today": datetime.today()
-    })
+    if request.method == 'POST':
+        start = datetime.strptime(request.POST['date'], '%Y-%m-%d')
+        end = datetime.strptime(request.POST['date_end'], '%Y-%m-%d')
+        # Basic checks
+        if start < datetime.today():
+            #REVENIR SUR LA GESTION DES ERREURS (RENVOYER PLUTOT VERS LA PAGE AVEC UN MESSAGE D ERROR)
+            return HttpResponse("You can't add a date earlier than today", status=403)
+        if start > end:
+            return HttpResponse("You can't provide a end date earlier than start date", status=403)
+
+        # Create ou Update the start date
+        date_temp, created = DateSpecial.objects.get_or_create(
+            date=start
+        )
+        date_detailed = DateForm(request.POST, instance=date_temp)
+        if date_detailed.is_valid():
+            date_detailed.save()
+            return HttpResponseRedirect(reverse("date_special"))
+        else:
+            return HttpResponse("Something gone wrong", status=403)
+
+    else:
+        date_form = DateForm()
+        return  render(request, "booking/index.html", {
+            "weekdays": WeekDayOpened.objects.all(),
+            "dates": DateSpecial.objects.filter(date__gte=datetime.today()),
+            "date_form": date_form,
+            "today": datetime.today()
+        })
+
+@login_required
+def date_delete(request, date_id):
+    date_to_delete = DateSpecial.objects.get(pk=date_id)
+    delete_fct_return = date_to_delete.delete()
+    if delete_fct_return[0] == 1:
+        return HttpResponseRedirect(reverse("date_special"))
+    else:
+        return HttpResponse("The date hasn't been deleted", status=403)
 
 def staff(request):
     pass
