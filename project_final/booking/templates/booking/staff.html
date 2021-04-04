@@ -1,0 +1,98 @@
+{% load static %}
+
+<section id="staff">
+    <div class="container">
+
+        <div id="existing-staff">
+            <h2>Actual Staff</h2>
+            <table data-staff_data="{{ staff_data }}">
+                {% regroup staffs by get_position_display as position_list %}
+                {% for position,staffs_by_position in position_list %}
+                    <tr><th colspan="3">{{ position }}</th><td></td><td></td></tr>
+                    {% for staff in staffs_by_position %}
+                        <tr data-staff_id="{{ staff.id }}" data-staff_is_active="{{ staff.is_active }}" data-staff_position="{{ staff.position }}"
+                        {% if staff.is_active is not True %}
+                        class="non-active"
+                        {% endif %}>
+                            <th></th>
+                            <td><button type="button" class="btn btn-sm btn-warning edit-staff" data-bs-toggle="modal" data-bs-target="#edit_section">Edit</button></td>
+                            <td class="staff_short_name">{{ staff.short_name }}</td>
+                            <td><span class="staff_first_name">{{ staff.first_name }}</span> <span class="staff_last_name">{{ staff.last_name }}</span></td>
+                            <td><button type="button" class="btn btn-sm btn-warning delete-staff" data-bs-toggle="modal" data-bs-target="#delete_confirmation">Delete</button></td>
+                        </tr>
+                    {% endfor %}
+                {% endfor %}
+            </table>
+            <button type="button" class="btn btn-sm btn-warning add-staff" data-bs-toggle="modal" data-bs-target="#create_section">Add new person</button>
+        </div>
+        
+        <hr>
+
+        <!-- Modal For Create new Staff -->
+        <div id="create_section" class="modal fade" tabindex="-1" aria-labelledby="create_section_label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="create_section_label">Create new staff person</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{% url 'staff' %}" method="POST">
+                            {% csrf_token %}
+                            <table>
+                                {{ staff_form.as_table }}
+                            </table>
+                            <input type="submit" value="Add">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal For Editing Table -->
+        <div id="edit_section" class="modal fade" tabindex="-1" aria-labelledby="edit_section_label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="edit_section_label">Edit Person</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/staff" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="staff_id" value="">
+                            <table>
+                                {{ staff_form.as_table }}
+                            </table>
+                            <input  type="submit" value="Update staff">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal For Deleting Table -->
+        <div id="delete_confirmation" class="modal fade" tabindex="-1" aria-labelledby="delete_confirmation_label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="delete_confirmation_label">Delete Confirmation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="delete_message">Are you sure, you want do delete this person?</p>
+                        <button id="delete_confirm_btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yes, delete it!</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">No, keep it</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+
+<script src="{% static 'booking/staff.js' %}"></script>
+
+    </div>
+</section>

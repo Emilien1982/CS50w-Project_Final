@@ -17,5 +17,6 @@ urlpatterns = [
     path('table/<int:table_id>', views.table_update, name="table_update"),
     path('table_delete/<int:table_id>', views.table_delete, name="table_delete"),
     path('weekday_update', views.weekday_update, name="weekday_update"),
-    path('date_detete/<int:date_id>', views.date_delete, name="date_delete")
+    path('date_detete/<int:date_id>', views.date_delete, name="date_delete"),
+    path('staff_delete/<int:staff_id>', views.staff_delete, name="staff_delete")
 ]

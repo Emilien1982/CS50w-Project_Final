@@ -67,6 +67,10 @@ iframe {
     height: auto; 
 }
 
+.non-active {
+    text-decoration-line: line-through;
+}
+
 /* TABLES MANAGEMENT PAGE */
 .edit-table, .delete-table {
     color:rgb(27, 126, 32);

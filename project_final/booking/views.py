@@ -6,7 +6,7 @@ from django.urls import reverse
 from datetime import datetime, timedelta
 from json import dumps
 
-from .models import User, Table, Client, WeekDayOpened, DateSpecial, Booking, TableForm, DateForm
+from .models import User, Table, Client, WeekDayOpened, DateSpecial, Booking, Staff, TableForm, DateForm, StaffForm
 
 
 # Create your views here.
@@ -62,6 +62,7 @@ def table(request):
         table_form = TableForm()
 
         return render(request, "booking/index.html", {
+            "table_tab": True,
             "tables": tables,
             "table_form": table_form,
             # pass tables data as JSON format for javascript usage (when editing table for example)
@@ -167,6 +168,7 @@ def date_special(request):
     else:
         date_form = DateForm()
         return  render(request, "booking/index.html", {
+            "date_tab": True,
             "weekdays": WeekDayOpened.objects.all(),
             "dates": DateSpecial.objects.filter(date__gte=datetime.today()),
             "date_form": date_form,
@@ -183,4 +185,30 @@ def date_delete(request, date_id):
         return HttpResponse("The date hasn't been deleted", status=403)
 
 def staff(request):
-    pass
+    if request.method == "POST":
+        if "staff_id" in request.POST:
+            old_staff = Staff.objects.get(pk=request.POST['staff_id'])
+            new_staff = StaffForm(request.POST, instance=old_staff)
+        else:
+            new_staff = StaffForm(request.POST)
+        if new_staff.is_valid():
+            new_staff.save()
+            return HttpResponseRedirect(reverse('staff'))
+        else:
+            return HttpResponse('Something gone wrong with the submited staff', status=403)
+    else:
+        return render(request, "booking/index.html", {
+            "staff_tab": True,
+            "staffs": Staff.objects.all().order_by('position', 'last_name'),
+            "staff_form": StaffForm()
+        })
+
+@login_required
+def staff_delete(request, staff_id):
+    staff_to_delete = Staff.objects.get(pk=staff_id)
+    delete_fct_return = staff_to_delete.delete()
+    if delete_fct_return[0] == 1:
+        HttpResponse(status=200)
+    else:
+        return HttpResponse("The date hasn't been deleted", status=403)
+    

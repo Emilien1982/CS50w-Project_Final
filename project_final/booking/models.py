@@ -30,6 +30,16 @@ STATE_CHOICES = [
     ("Close", "Closed")
 ]
 
+POSITION_CHOICES = [
+    ("waiter", "waiter"),
+    ("barman", "barman"),
+    ("chef", "chef"),
+    ("kitchen aid", "kitchen aid"),
+    ("supervisor", "supervisor"),
+    ("manager", "manager"),
+    ("owner", "owner")
+]
+
 WEEKDAY_CHOICES = [
     ("mon", "Monday"),
     ("tue", "Tuesday"),
@@ -39,6 +49,8 @@ WEEKDAY_CHOICES = [
     ("sat", "Saturday"),
     ("sun", "Sunday"),
 ]
+
+
 ## Models
 
 class User(AbstractUser):
@@ -109,6 +121,17 @@ class Booking(models.Model):
     creator = models.CharField(max_length=10)
     note = models.CharField(max_length=140, blank=True)
 
+class Staff(models.Model):
+    is_active = models.BooleanField(default=True)
+    first_name = models.CharField(max_length=20)
+    last_name = models.CharField(max_length=20)
+    short_name = models.CharField(max_length=5)
+    position = models.CharField(
+        max_length=15,
+        choices=POSITION_CHOICES,
+        blank=True
+    )
+
 ## Forms
 
 class TableForm(ModelForm):
@@ -124,3 +147,8 @@ class DateForm(ModelForm):
         widgets = {
             'state': forms.RadioSelect
         }
+
+class StaffForm(ModelForm):
+    class Meta:
+        model = Staff
+        fields = '__all__'

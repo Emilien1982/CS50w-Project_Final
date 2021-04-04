@@ -116,21 +116,20 @@
         </section>
         <!-- ###### ONLY MAMAGER USER ####### -->
 
-<!-- UTILISER % include  % pour éclater les html en plusieurs fichiers? -->
         {% if  user.groups.all.0.name == "manager" %}
             <!-- TABLE PAGE -->
-            {% if tables %}
+            {% if table_tab %}
                 {% include "booking/table.html" %}
             {% endif %}
-            {% if weekdays %}
+            <!-- DATE PAGE -->
+            {% if date_tab %}
                 {% include "booking/date.html" %}
             {% endif %}
-
-            <section id="staff-name">
-                <div class="container">
-                    
-                </div>
-            </section>
+            <!-- STAFF PAGE -->
+            
+            {% if staff_tab %}
+                {% include "booking/staff.html" %}
+            {% endif %}
         {% endif %}
     {% endif %}
 
