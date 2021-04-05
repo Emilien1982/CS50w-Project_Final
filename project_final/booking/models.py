@@ -50,6 +50,10 @@ WEEKDAY_CHOICES = [
     ("sun", "Sunday"),
 ]
 
+TIME_CHOICES = [
+    ("lunch", "lunch"),
+    ("diner", "diner")
+]
 
 ## Models
 
@@ -112,15 +116,6 @@ class DateSpecial(models.Model):
     at_lunch = models.BooleanField(default=True)
     at_dinner = models.BooleanField(default=True)
 
-class Booking(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="booker")
-    tables = models.ManyToManyField(Table, related_name="booked")
-    is_wanted_table = models.BooleanField(default=False)
-    booking_date = models.DateTimeField(auto_now=True)
-    creation_date = models.DateTimeField(auto_now_add=True)
-    creator = models.CharField(max_length=10)
-    note = models.CharField(max_length=140, blank=True)
-
 class Staff(models.Model):
     is_active = models.BooleanField(default=True)
     first_name = models.CharField(max_length=20)
@@ -131,6 +126,21 @@ class Staff(models.Model):
         choices=POSITION_CHOICES,
         blank=True
     )
+
+class Booking(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="booker")
+    tables = models.ManyToManyField(Table, related_name="booked")
+    is_wanted_table = models.BooleanField(default=False)
+    booking_date = models.DateTimeField()
+    booking_time = models.CharField(
+        max_length=5,
+        choices=TIME_CHOICES,
+        default="lunch"
+    )
+    creation_date = models.DateTimeField(auto_now=True)
+    creator = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, blank=True)
+    note = models.CharField(max_length=140, blank=True)
+
 
 ## Forms
 

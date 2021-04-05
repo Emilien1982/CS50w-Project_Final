@@ -99,11 +99,10 @@
 
     <!-- ###### STAFF & MAMAGER USER ####### -->
     {% if user.is_authenticated %}
-        <section id="booking" class="hidden">
-            <div class="container">
-                
-            </div>
-        </section>
+        {% if book_search_tab %}
+            {% include "booking/booking_search.html" %}
+        {% endif %}
+
         <section id="deleted" class="hidden">
             <div class="container">
                 
@@ -126,7 +125,6 @@
                 {% include "booking/date.html" %}
             {% endif %}
             <!-- STAFF PAGE -->
-            
             {% if staff_tab %}
                 {% include "booking/staff.html" %}
             {% endif %}

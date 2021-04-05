@@ -17,13 +17,13 @@
                             <th></th>
                             <td><button type="button" class="btn btn-sm btn-warning edit-staff" data-bs-toggle="modal" data-bs-target="#edit_section">Edit</button></td>
                             <td class="staff_short_name">{{ staff.short_name }}</td>
-                            <td><span class="staff_first_name">{{ staff.first_name }}</span> <span class="staff_last_name">{{ staff.last_name }}</span></td>
+                            <td><span class="staff_last_name">{{ staff.last_name }}</span> <span class="staff_first_name">{{ staff.first_name }}</span></td>
                             <td><button type="button" class="btn btn-sm btn-warning delete-staff" data-bs-toggle="modal" data-bs-target="#delete_confirmation">Delete</button></td>
                         </tr>
                     {% endfor %}
                 {% endfor %}
             </table>
-            <button type="button" class="btn btn-sm btn-warning add-staff" data-bs-toggle="modal" data-bs-target="#create_section">Add new person</button>
+            <button type="button" class="btn btn-sm btn-warning add-staff" data-bs-toggle="modal" data-bs-target="#create_section">Add new employee</button>
         </div>
         
         <hr>
@@ -33,7 +33,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                    <h5 class="modal-title" id="create_section_label">Create new staff person</h5>
+                    <h5 class="modal-title" id="create_section_label">Create new staff member</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -91,8 +91,4 @@
     </div>
 </section>
 
-
 <script src="{% static 'booking/staff.js' %}"></script>
-
-    </div>
-</section>

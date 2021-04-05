@@ -1,0 +1,83 @@
+{% load static %}
+
+<section id="booking_search">
+    <div class="container">
+        <div id="search-inputs">
+            <h2>Select the criteria you want:</h2>
+            <form>
+                <table>
+                    <tr>
+                        <td>
+                            <label for="capacity">How many persons: </label>
+                        </td>
+                        <td>
+                            <select name="capacity" id="capacity">
+                                <option value="2" selected>1 or 2</option>
+                                <option value="4">3 or 4</option>
+                                <option value="6">5 or 6</option>
+                                <option value="8">7 or 8</option>
+                                <option value="10">9 or 10</option>
+                                <option value="12">11 or 12</option>
+                                <option value="100">+12</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="disabled-access">Disabled access needed</label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="disabled-access" name="disabled-access" checked>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Table height: </label>
+                        </td>
+                        <td>
+                            <label for="table-low">Low</label>
+                            <input name="table-low" id="table-low" type="checkbox" checked>
+                            <label for="table-std">Standard</label>
+                            <input name="table-std" id="table-std" type="checkbox" checked>
+                            <label for="table-high">High</label>
+                            <input name="table-high" id="table-high" type="checkbox" checked>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Area: </label>
+                        </td>
+                        <td>
+                            <label for="area-ext">Exterior</label>
+                            <input name="area-ext" id="area-ext" type="checkbox" checked>
+                            <label for="area-main">Main Room</label>
+                            <input name="area-main" id="area-main" type="checkbox" checked>
+                            <label for="area-up">Up-stair</label>
+                            <input name="area-up" id="area-up" type="checkbox" checked>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Time: </label>
+                        </td>
+                        <td>
+                            <label for="time-lunch">Lunch</label>
+                            <input name="time-lunch" id="time-lunch" type="checkbox" checked>
+                            <label for="time-dinner">Dinner</label>
+                            <input name="time-dinner" id="time-dinner" type="checkbox" checked>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+        <hr>
+        <div id="search-results">
+            <h2>Availble dates with your criteria:</h2>
+            <div id="search-results-list">
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="{% static 'booking/booking.js' %}"></script>
