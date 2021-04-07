@@ -14,9 +14,9 @@ CAPACITY_CHOICES = [
     (14, "14")
 ]
 FORM_TYPE_CHOICES = [
-    ("H", "High"),
-    ("S", "Standard"),
-    ("L", "Low")
+    ("High", "High"),
+    ("Standard", "Standard"),
+    ("Low", "Low")
 ]
 
 AREA_CHOICES = [
@@ -25,10 +25,6 @@ AREA_CHOICES = [
     ("MAI", "Main Room")
 ]
 
-STATE_CHOICES = [
-    ("Open", "Opened"),
-    ("Close", "Closed")
-]
 
 POSITION_CHOICES = [
     ("waiter", "waiter"),
@@ -75,7 +71,7 @@ class Table(models.Model):
         default=2
     )
     form_type = models.CharField(
-        max_length=1,
+        max_length=10,
         choices=FORM_TYPE_CHOICES,
         verbose_name="Table height"
     )
@@ -107,12 +103,6 @@ class WeekDayOpened(models.Model):
 
 class DateSpecial(models.Model):
     date = models.DateField(unique=True)
-    state = models.CharField(
-        max_length=5,
-        choices=STATE_CHOICES,
-        default="Close",
-        verbose_name="The restaurant is"
-    )
     at_lunch = models.BooleanField(default=True)
     at_dinner = models.BooleanField(default=True)
 
@@ -154,9 +144,7 @@ class DateForm(ModelForm):
     class Meta:
         model = DateSpecial
         exclude = ['date']
-        widgets = {
-            'state': forms.RadioSelect
-        }
+
 
 class StaffForm(ModelForm):
     class Meta:

@@ -4,7 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from django.shortcuts import HttpResponse, HttpResponseRedirect, render
 from django.urls import reverse
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+from django.http import JsonResponse
 import json
 
 from .models import User, Table, Client, WeekDayOpened, DateSpecial, Booking, Staff, TableForm, DateForm, StaffForm
@@ -92,8 +93,6 @@ def date_special(request):
         if start > end:
             return HttpResponse("You can't provide a end date earlier than start date", status=403)
         fields_list = request.POST.keys()
-        if not 'at_lunch' in fields_list and not 'at_dinner' in fields_list:
-            return HttpResponse("Lunch and Dinner checkboxes can't be both unchecked at the same time", status=403)
 
         # Deal with a period (start to end) if applicable
         if request.POST['period'] == "no":
@@ -230,9 +229,81 @@ def staff_delete(request, staff_id):
 def booking_api(request):
     if request.method == 'POST':
         search_criteria = json.loads(request.body)
-        ## First make sure 
         
-        print(search_criteria)
-        return HttpResponse(status=200)
+        area_list = []
+        if search_criteria['area-ext']:
+            area_list.append("EXT")
+        if search_criteria['area-mai']:
+            area_list.append("MAI")
+        if search_criteria['area-up']:
+            area_list.append("UP")
+
+        table_height_list = []
+        if search_criteria['table-low']:
+            table_height_list.append("Low")
+        if search_criteria['table-std']:
+            table_height_list.append("Standard")
+        if search_criteria['table-high']:
+            table_height_list.append("High")
+
+
+        start = date.today()
+        end = start + timedelta(days=31)
+
+        # 1/ get a list of special dates between start to end
+        special_dates = DateSpecial.objects.filter(date__range=(start, end))
+
+        # 2/ get the weekdays
+        weekdays = WeekDayOpened.objects.all()
+
+        # 3/ get the possible tables regarding the criteria
+        possible_tables = Table.objects.filter(is_active=True).filter(is_joker=False).filter(area__in=area_list).filter(form_type__in=table_height_list).filter(capacity=int(search_criteria['capacity']))
+        if search_criteria['disabled-access']:
+            possible_tables = possible_tables.filter(is_for_disabled=True)
+        #print(possible_tables)
+
+        # 4/ get all the existing booking between start and end
+        impossible_dates = Booking.objects.filter(booking_date__range=(start, end))
+        print("IMPOSSIBLE", impossible_dates)
+
+        # 5/ create a list that stores all possible dates between start to end
+        possible_dates = []
+        while start <= end:
+            if start in special_dates.values_list('date', flat=True):
+                ## if start is a special date, add it according the special date opened times
+                d_day = special_dates.get(date=start)
+                if d_day.at_lunch == search_criteria['time-lunch'] or d_day.at_dinner == search_criteria['time-dinner']:
+                    possible_dates.append(
+                            {"date": start,
+                            "lunch": d_day.at_lunch,
+                            "dinner": d_day.at_dinner,
+                            "tables": list(possible_tables.values())
+                            }
+                    )
+            else:
+                ## get opened times regarding the weekdays 
+                # get the week day of the date "start"
+                start_day = start.strftime("%a").lower()
+                # get the opened time(s) of the date "start"
+                weekday = weekdays.filter(weekday=start_day)
+                # add the date + time, according to the weekdays opened times
+                if weekday[0].is_opened_lunch == search_criteria['time-lunch'] or weekday[0].is_opened_dinner == search_criteria['time-dinner']:
+                    possible_dates.append(
+                            {"date": start,
+                            "lunch": weekday[0].is_opened_lunch,
+                            "dinner":weekday[0].is_opened_dinner,
+                            "tables": list(possible_tables.values())
+                            }
+                    )
+
+            start += timedelta(days=1)
+
+        #print("POSSIBLE", possible_dates)
+        #### APRES AVOIR CREER DES BOOKINGS, RESTE A EXCLURE LES impossible_dates DE possible_dates, TABLE PAR TABLE
+
+
+        # NE RENVOYER QU UN JSON AVEC TABLES ET DATES
+        return JsonResponse(possible_dates, safe=False)
+        #### APRES AVOIR CREER DES BOOKINGS, REVOIR SI possible_dates EST BIEN APPROPRIE
     else:
         return HttpResponse(status=403)

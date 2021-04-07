@@ -137,7 +137,6 @@
                     <thead>
                         <tr>
                             <td>Date</td>
-                            <td>Open / Close</td>
                             <td>Lunch</td>
                             <td>Dinner</td>
                             <td></td>
@@ -145,9 +144,11 @@
                     </thead>
                     <tbody>
                         {% for date in dates %}
-                            <tr>
+                            <tr
+                            {% if not date.at_lunch and not date.at_dinner %}
+                                class="date_fully_closed"
+                            {% endif %}>
                                 <td>{{ date.date|date:"d M Y - D" }}</td>
-                                <td class="date_state">{{ date.state }}</td>
                                 <td>
                                     {% if date.at_lunch %} ✔️ {% else %} - {% endif %}
                                 </td>

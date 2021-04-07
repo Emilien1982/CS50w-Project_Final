@@ -4,6 +4,7 @@
     <div class="container">
         <div id="search-inputs">
             <h2>Select the criteria you want:</h2>
+            <div class="alert alert-danger" id="alert-message" role="alert"></div>
             <form>
                 <table>
                     <tr>
@@ -27,7 +28,7 @@
                             <label for="disabled-access">Disabled access needed</label>
                         </td>
                         <td>
-                            <input type="checkbox" id="disabled-access" name="disabled-access" checked>
+                            <input type="checkbox" id="disabled-access" name="disabled-access">
                         </td>
                     </tr>
                     <tr>
@@ -50,8 +51,8 @@
                         <td>
                             <label for="area-ext">Exterior</label>
                             <input name="area-ext" id="area-ext" type="checkbox" checked>
-                            <label for="area-main">Main Room</label>
-                            <input name="area-main" id="area-main" type="checkbox" checked>
+                            <label for="area-mai">Main Room</label>
+                            <input name="area-mai" id="area-mai" type="checkbox" checked>
                             <label for="area-up">Up-stair</label>
                             <input name="area-up" id="area-up" type="checkbox" checked>
                         </td>
@@ -73,8 +74,84 @@
         <hr>
         <div id="search-results">
             <h2>Availble dates with your criteria:</h2>
-            <div id="search-results-list">
+            <table id="dates-list">
+            </table>
+        </div>
+        <!-- MODAL FOR BOOKING DETAILS -->
+        <div class="modal fade" id="booking_details" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="booking_detailsLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="booking_detailsLabel">Booking Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div id="details_datetime">
+                            <p><span id="details_date"></span></p>
+                            <p><span id="details_capacity"></span> persons</p>
+                            <p><span id="details_time"></span></p>
+                        </div>
+                        <hr>
+                        <div id="details_choose_table">
+                            <h4>Choose a table:</h4>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="details_loked_table">
+                                <label class="form-check-label" for="details_loked_table">
+                                    Table asked by the client
+                                </label>
+                              </div>
+                            <table class="table table-striped">
+                                <tr>
+                                    <th scope="col">Ref.</th>
+                                    <th scope="col">Capacity</th>
+                                    <th scope="col">Area</th>
+                                    <th scope="col">Table Height</th>
+                                    <th scope="col">Ok for disabled</th>
+                                </tr>
+                                <tbody id="details_tables" >
 
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr>
+                        <div id="details_client">
+                            <h4>Client:</h4>
+                            <div id="phone_number">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" list="phone_list" id="details_phone" placeholder="Phone Number" required>
+                                    <label for="details_phone">Phone Number</label>
+                                    <datalist id="phone_list">
+                                        <!-- SUPPRIMER LES OPTIONS QUAND QUELQUES CLIENTS SERONT CREES -->
+                                        <option value="San Francisco">
+                                        <option value="New York">
+                                        <option value="Seattle">
+                                        <option value="Los Angeles">
+                                        <option value="Chicago">
+                                    </datalist>
+                                </div>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="details_first" placeholder="First Name" required>
+                                <label for="details_first">First Name</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" id="details_last" placeholder="Last Name">
+                                <label for="details_last">Last Name</label>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <label for="details_note" class="form-label">Note:</label>
+                            <textarea class="form-control" id="details_note" rows="3" placeholder="If necessary, place a note here..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="book_btn" type="button" class="btn btn-primary">BOOK</button>
+                </div>
+            </div>
             </div>
         </div>
     </div>

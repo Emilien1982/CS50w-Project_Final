@@ -1,22 +1,4 @@
 
-//// Manage the background of the date list rows regarding the date state (Open/close)
-const td_states = document.querySelectorAll("#date-list td[class='date_state']");
-for (const td_state of td_states) {
-    let bg_color = "#c7ffea";
-    if (td_state.innerText == 'Close') {
-        bg_color = '#ffdfdf'
-    }
-    const td_state_row = td_state.parentElement;
-    const row_cells = td_state_row.children;
-    
-
-    for (const cell of row_cells) {
-        console.log(cell);
-        cell.style.background = bg_color;
-    }
-}
-
-
 const date_end_input = document.getElementById("date_end");
 
 
