@@ -20,5 +20,7 @@ urlpatterns = [
     path('weekday_update', views.weekday_update, name="weekday_update"),
     path('date_detete/<int:date_id>', views.date_delete, name="date_delete"),
     path('staff_delete/<int:staff_id>', views.staff_delete, name="staff_delete"),
-    path('booking_api', views.booking_api, name="booking_api")
+    path('booking_api', views.booking_api, name="booking_api"),
+    path('booking_save_api', views.booking_save_api),
+    path('client_api', views.client_api, name="client_api")
 ]

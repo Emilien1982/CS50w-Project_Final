@@ -96,19 +96,21 @@
                         <div id="details_choose_table">
                             <h4>Choose a table:</h4>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="details_loked_table">
+                                <input class="form-check-input" type="checkbox" value="" id="details_locked_table">
                                 <label class="form-check-label" for="details_loked_table">
                                     Table asked by the client
                                 </label>
-                              </div>
+                            </div>
                             <table class="table table-striped">
-                                <tr>
-                                    <th scope="col">Ref.</th>
-                                    <th scope="col">Capacity</th>
-                                    <th scope="col">Area</th>
-                                    <th scope="col">Table Height</th>
-                                    <th scope="col">Ok for disabled</th>
-                                </tr>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Ref.</th>
+                                        <th scope="col">Capacity</th>
+                                        <th scope="col">Area</th>
+                                        <th scope="col">Table Height</th>
+                                        <th scope="col">Ok for disabled</th>
+                                    </tr>
+                                </thead>
                                 <tbody id="details_tables" >
 
                                 </tbody>
@@ -117,7 +119,11 @@
                         <hr>
                         <div id="details_client">
                             <h4>Client:</h4>
+                            <div id="details_alert" class="alert alert-danger d-none" role="alert">
+                                This client is not welcome!
+                            </div>
                             <div id="phone_number">
+                                <label><input type="checkbox" id="details_foreign_num"> Is foreign number</label>
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" list="phone_list" id="details_phone" placeholder="Phone Number" required>
                                     <label for="details_phone">Phone Number</label>
@@ -145,11 +151,22 @@
                             <label for="details_note" class="form-label">Note:</label>
                             <textarea class="form-control" id="details_note" rows="3" placeholder="If necessary, place a note here..."></textarea>
                         </div>
+                        <div class="modal-footer col justify-content-between">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" list="staff_list" id="details_booker" placeholder="Type your short-name" required>
+                                <label for="details_phone">Booking creator: </label>
+                                <datalist id="staff_list">
+                                    {% for employee in staffActive %}
+                                        <option data-staff_id='{{ employee.id }}' value='{{ employee.short_name }}'>{{ employee.first_name }} {{ employee.last_name }}</option>
+                                    {% endfor %}
+                                </datalist>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button id="book_btn" type="submit" class="btn btn-primary">BOOK</button>
+                            </div>
+                        </div>
                     </form>
-                </div>
-                <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="book_btn" type="button" class="btn btn-primary">BOOK</button>
                 </div>
             </div>
             </div>

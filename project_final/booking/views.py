@@ -48,6 +48,7 @@ def deleted(request):
 def booking_search(request):
     return render(request, "booking/index.html", {
         "book_search_tab": True,
+        "staffActive": Staff.objects.filter(is_active=True)
     })
 
 def booking_list(request):
@@ -115,12 +116,11 @@ def date_special(request):
         return HttpResponseRedirect(reverse("date_special"))
 
     else:
-        date_form = DateForm()
         return  render(request, "booking/index.html", {
             "date_tab": True,
             "weekdays": WeekDayOpened.objects.all(),
             "dates": DateSpecial.objects.filter(date__gte=datetime.today()),
-            "date_form": date_form,
+            "date_form": DateForm(),
             "today": datetime.today()
         })
 
@@ -307,3 +307,29 @@ def booking_api(request):
         #### APRES AVOIR CREER DES BOOKINGS, REVOIR SI possible_dates EST BIEN APPROPRIE
     else:
         return HttpResponse(status=403)
+
+@login_required
+def booking_save_api(request):
+    if request.method == 'POST':
+        pass
+    else:
+        return HttpResponse(status=403)
+##### DEFINIR CETTE FONCTION VENDREDI
+
+@login_required
+@csrf_exempt
+def client_api(request):
+    if request.method == 'POST':
+        client_data = json.loads(request.body)
+        
+        client, created = Client.objects.get_or_create(
+            tel=client_data['phone']
+        )
+        # get or created, client fields are assigned to the client data typed in the booking form
+        client.first_name=client_data['first']
+        client.last_name=client_data['last']
+        client.is_foreign_phone = bool(client_data['is_foreign_num'])
+        client.save()
+        return JsonResponse(client.id, safe=False)
+    else:
+        return HttpResponse('POST method is required to use this route of API', status=403)

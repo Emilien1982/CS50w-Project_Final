@@ -1,3 +1,7 @@
+// Global page variable
+const border_style_default = '1px solid #ced4da';
+const border_style_alert = '1px solid red';
+
 // get elements in the criteria area
 const alert = document.getElementById('alert-message');
 const dates_list = document.getElementById('dates-list');
@@ -8,11 +12,16 @@ const checkbox_inputs = document.querySelectorAll("form input[type='checkbox']")
 const details_date = document.getElementById('details_date');
 const details_capacity = document.getElementById('details_capacity');
 const details_time = document.getElementById('details_time');
+const details_choose_table = document.querySelector('#details_choose_table table');
 const details_tables = document.getElementById('details_tables');
+const details_locked_table = document.getElementById('details_locked_table');
+const details_alert = document.getElementById('details_alert');
 const details_phone = document.getElementById('details_phone');
+const details_foreign_num = document.getElementById('details_foreign_num');
 const details_first = document.getElementById('details_first');
 const details_last = document.getElementById('details_last');
 const details_note = document.getElementById('details_note');
+const details_booker = document.getElementById('details_booker');
 const book_btn = document.getElementById('book_btn');
 
 // get the choose lunch or dinner btn ready (to be duplicate in the date list)
@@ -22,7 +31,7 @@ const dinner_btn = document.createElement('div');
 dinner_btn.innerHTML = '<button type="button" class="btn btn-sm btn-primary choose_date" data-time="dinner" data-bs-toggle="modal" data-bs-target="#booking_details">Dinner</button>';
 
 
-//// Display the availables date
+//// Display the availables dates
 const display_dates = (dates) => {
     current_month = ""
     // set the heading row
@@ -36,12 +45,14 @@ const display_dates = (dates) => {
     // set every date in a new row
     for (const date_item of dates) {
         const day = new Intl.DateTimeFormat('en-US', { weekday: 'short'}).format(Date.parse(date_item.date));
-        const month_date = new Intl.DateTimeFormat('en-US', {month: "2-digit", day: "numeric"}).format(Date.parse(date_item.date));
+        const month_date = new Intl.DateTimeFormat('en-US', {month: "2-digit", day: "2-digit"}).format(Date.parse(date_item.date));
         const month = new Intl.DateTimeFormat('en-US', {month: "long"}).format(Date.parse(date_item.date));
+        const year = new Intl.DateTimeFormat('en-US', {year: "numeric"}).format(Date.parse(date_item.date));
         /// prepare a dict to store date data as dataset in the <tr> of the date_item
         const date_data = {
             "day": day,
             "month_date": month_date,
+            "year": year,
             "tables": date_item.tables
         }
         /// Set the "month row heading" before the first possible_date of each month
@@ -88,15 +99,18 @@ const display_dates = (dates) => {
 
 //// ill up the booking details form
 const fillUp_details = (time, date_data) => {
-    details_date.innerHTML = `${date_data.day}  ${date_data.month_date}`;
+    details_date.insertAdjacentText('beforebegin', `${date_data.day} `);
+    details_date.innerHTML = `${date_data.month_date}`;
+    details_date.setAttribute('data-year', date_data.year);
     details_capacity.innerHTML = `${select_input.value}`;
     document.getElementById('details_time').innerHTML = time;
+    details_tables.innerHTML = '';
     const tables = date_data.tables;
     for (const table of tables) {
         const table_entry = document.createElement('tr');
         table_entry.innerHTML = `
             <td>
-                <input class="form-check-input me-1" type="radio" name="table" id="table-${table.id}" value="${table.id}">
+                <input class="form-check-input me-1" type="radio" name="table" id="table-${table.id}" value="${table.id}" required>
                 <label for="table-${table.id}">${table.reference}</label>
             </td>
             <td>
@@ -119,11 +133,8 @@ const fillUp_details = (time, date_data) => {
                 input_of_the_row.checked = true;
             })
         }
-        
         details_tables.appendChild(table_entry);
     }
-
-
 }
 
 //// Fetch criteria and display the results on the page
@@ -135,6 +146,7 @@ const fetch_n_display = (criteria) => {
     .then((response) => response.json())
     .then((response) => display_dates(response))
     .then(() => {
+        /// set event listener on all luch and dinner btn
         const choose_btns = document.getElementsByClassName('choose_date');
         for (const btn of choose_btns) {
             btn.addEventListener('click', event => {
@@ -144,8 +156,7 @@ const fetch_n_display = (criteria) => {
                 fillUp_details(time, date_data);
             })
         }
-    })
-    ;
+    });
 }
 
 //// Handle any change on the form inputs
@@ -183,11 +194,97 @@ for (const checkbox of checkbox_inputs) {
     checkbox.addEventListener('input', handle_inputs_onChange);
 }
 
+//// Check and fetch client data
+const handle_client_data = () => {
+    const client_phone = details_phone.value;
+    const client_first = details_first.value;
+    let client_data = {};
+    if (client_phone !== '' && client_first !== '') {
+        client_data = {
+        "phone": client_phone,
+        "is_foreign_num": details_foreign_num.value,
+        "first": client_first,
+        "last": details_last.value
+        }
+    } else {
+        window.alert("Client phone and first name can't be empty.");
+        details_phone.style.border = details_phone.value === ''? border_style_alert : border_style_default;
+        details_first.style.border = details_first.value === ''? border_style_alert : border_style_default;
+        return;
+    }
 
+    return fetch('/client_api', {
+        method: 'POST',
+        body: JSON.stringify(client_data)
+    })
+    .then((response) => {return response.json()})
+}
+
+//// Create a booking
+const create_booking = (client_id) => {
+    const table_id = details_tables.value;
+    const date = details_date.innerText;
+    const year = details_date.dataset.year;
+    const time = details_time.innerText;
+    const booker_short = details_booker.value;
+    let booker_id = ''
+    if (booker_short) {
+        booker_id = document.querySelector(`option[value=${booker_short}]`).dataset.staff_id;
+    }
+    if (client_id !== '' && table_id !== '' && date !== '' && time !== '' && booker_id !== '') {
+        // the date is only month/day. So it needs to be rebuild with year to have nice Date obj
+        const booking_details = {
+            "client_id": Number(client_id),
+            "table_id": Number(table_id),
+            "table_locked": Boolean(details_locked_table.value),
+            "date": new Date(`${year}/${date}`),
+            "time": time,
+            "booker_id": Number(booker_id),
+            "note": details_note.innerText
+        }
+        fetch('/booking_save_api', {
+            method: 'POST',
+            body: JSON.stringify(booking_details)
+        })
+        ////// VENDREDI DEFINIR LA SUITE DU FETCH CI DESSUS
+    }
+    else {
+        window.alert("You must choose a table and type your short name");
+        if (table_id === undefined ) {
+            details_choose_table.setAttribute('class', 'table table-striped table-danger');
+        }
+        details_booker.style.border = booker_id === ''? border_style_alert : border_style_default;
+        return;
+    }
+}
+
+//// Set click listener on Book btn
+book_btn.addEventListener('click', () => {
+    // 1 get or create the client
+    let client_id = handle_client_data();
+    
+    // 2 create the booking
+    
+     create_booking(client_id);
+    
+})
 
 //console.log(checkbox_inputs);
 
-// AJOUTER UN EVENT POUR FETCH DES LA FIN DU CHARGEMENT
+//// Set a DOMLoaded listener to fetch available tables with the default criteria
+window.addEventListener("DOMContentLoaded", handle_inputs_onChange);
 
+//// Set input listener to turn border back to normal when typing in field whise turned red after emplty submission try
+const border_defaulter = (event) => {
+    if (event.target.value !== '') {
+        event.target.style.border = border_style_default;
+    }
+}
+details_phone.addEventListener('input', border_defaulter);
+details_first.addEventListener('input', border_defaulter);
+details_choose_table.addEventListener('input', () => {
+    details_choose_table.setAttribute('class', 'table table-striped');
+});
+details_booker.addEventListener('input', border_defaulter);
 
 // JEUDI CREER LE FETCHAGE DU BOOKING EN JS ET SUR API
