@@ -60,7 +60,6 @@ def table(request):
         table_form = TableForm(request.POST)
         if table_form.is_valid():
             table_form.save()
-            print("JUST BEFORE RELOAD")
             return HttpResponseRedirect(reverse("table"))
         else:
             print("table_form is not valid!")
@@ -309,26 +308,68 @@ def booking_api(request):
         return HttpResponse(status=403)
 
 @login_required
+@csrf_exempt
 def booking_save_api(request):
     if request.method == 'POST':
-        pass
+        d = json.loads(request.body)
+        booking_date = date(d['date'][0], d['date'][1], d['date'][2])
+        # datetime.date() takes 3 args separate by a comma: year, month, day
+
+        try:
+            obj = Booking.objects.get(
+                table = Table.objects.get(pk=d['table_id']),
+                booking_date = booking_date,
+                booking_time = d['time']
+            )
+
+            return HttpResponse("The booking already exists, there is something wrong with the make of possible_tables list", status=403)
+
+        except Booking.DoesNotExist:
+            booking = Booking.objects.create(
+                table = Table.objects.get(pk=d['table_id']),
+                booking_date = booking_date,
+                booking_time = d['time'],
+                client = Client.objects.get(pk=d['client_id']),
+                is_wanted_table = d['table_locked'],
+                creator = Staff.objects.get(pk=d['booker_id']),
+                note = d['note']
+            )
+            return HttpResponse(status=200)
+
+        
+
+        """ booking, created = Booking.objects.get_or_create(
+            table = Table.objects.get(pk=d['table_id']),
+            booking_date = d['date'],
+            booking_time = d['time'],
+            client = Client.objects.get(pk=d['client_id']),
+            is_wanted_table = d['table_locked'],
+            creator = Staff.objects.get(pk=d['booker_id']),
+            note = d['note']
+        )
+        
+        print('CREATED ???? :', created)
+        if created:
+            booking.save()
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse("The booking already exists, there is something wrong with the make of possible_tables list", status=403) """
     else:
-        return HttpResponse(status=403)
-##### DEFINIR CETTE FONCTION VENDREDI
+        return HttpResponse(status=405)
+
 
 @login_required
 @csrf_exempt
 def client_api(request):
     if request.method == 'POST':
         client_data = json.loads(request.body)
-        
         client, created = Client.objects.get_or_create(
             tel=client_data['phone']
         )
         # get or created, client fields are assigned to the client data typed in the booking form
         client.first_name=client_data['first']
         client.last_name=client_data['last']
-        client.is_foreign_phone = bool(client_data['is_foreign_num'])
+        client.is_foreign_phone = client_data['is_foreign_num']
         client.save()
         return JsonResponse(client.id, safe=False)
     else:

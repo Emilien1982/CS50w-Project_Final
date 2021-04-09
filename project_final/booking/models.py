@@ -119,9 +119,9 @@ class Staff(models.Model):
 
 class Booking(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="booker")
-    tables = models.ManyToManyField(Table, related_name="booked")
+    table = models.ForeignKey(Table, on_delete=models.CASCADE, null=True, related_name="booked_table")
     is_wanted_table = models.BooleanField(default=False)
-    booking_date = models.DateTimeField()
+    booking_date = models.DateField()
     booking_time = models.CharField(
         max_length=5,
         choices=TIME_CHOICES,
@@ -131,6 +131,10 @@ class Booking(models.Model):
     creator = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, blank=True)
     note = models.CharField(max_length=140, blank=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['table', 'booking_date', 'booking_time'], name='unique_date_time_table')
+        ]
 
 ## Forms
 

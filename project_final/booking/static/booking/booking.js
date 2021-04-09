@@ -23,6 +23,9 @@ const details_last = document.getElementById('details_last');
 const details_note = document.getElementById('details_note');
 const details_booker = document.getElementById('details_booker');
 const book_btn = document.getElementById('book_btn');
+const success_popUp = document.getElementById('successfull_pop-up');
+// LE TOKEN EST IL UTILISER ????
+const csrf_token = document.querySelector('input[name="csrfmiddlewaretoken"]');
 
 // get the choose lunch or dinner btn ready (to be duplicate in the date list)
 const lunch_btn = document.createElement('div');
@@ -87,14 +90,8 @@ const display_dates = (dates) => {
             dinner_cell.innerText = " - ";
         }
         date_row.appendChild(dinner_cell);
-
-        /* <td>${date_item.lunch? lunch_btn :" - "}</td>
-            <td>${date_item.dinner? " ✔️ ":" - "}</td>
-            <td><button type="button" class="btn btn-sm btn-primary choose_date" data-bs-toggle="modal" data-bs-target="#booking_details">Choose this date</button></td> */
-
         dates_list.appendChild(date_row);
     }
-    /// AJOUTER UN EVENT LISTENER SUR CHAQUE BTN "CHOOSE THIS DATE"
 }
 
 //// ill up the booking details form
@@ -195,14 +192,14 @@ for (const checkbox of checkbox_inputs) {
 }
 
 //// Check and fetch client data
-const handle_client_data = () => {
+const handle_client_data = async () => {
     const client_phone = details_phone.value;
     const client_first = details_first.value;
     let client_data = {};
     if (client_phone !== '' && client_first !== '') {
         client_data = {
         "phone": client_phone,
-        "is_foreign_num": details_foreign_num.value,
+        "is_foreign_num": details_foreign_num.checked,
         "first": client_first,
         "last": details_last.value
         }
@@ -213,16 +210,22 @@ const handle_client_data = () => {
         return;
     }
 
-    return fetch('/client_api', {
+
+    const client_id = await fetch('/client_api', {
         method: 'POST',
         body: JSON.stringify(client_data)
     })
-    .then((response) => {return response.json()})
+    .then(resp => resp.json());
+    return client_id;
 }
 
 //// Create a booking
 const create_booking = (client_id) => {
-    const table_id = details_tables.value;
+    console.log( client_id);
+    let table_id = '';
+    for (const table_input of document.getElementsByName('table')) {
+        if (table_input.checked) { table_id = table_input.value }
+    }
     const date = details_date.innerText;
     const year = details_date.dataset.year;
     const time = details_time.innerText;
@@ -233,20 +236,29 @@ const create_booking = (client_id) => {
     }
     if (client_id !== '' && table_id !== '' && date !== '' && time !== '' && booker_id !== '') {
         // the date is only month/day. So it needs to be rebuild with year to have nice Date obj
-        const booking_details = {
+        const booking_all_details = {
             "client_id": Number(client_id),
             "table_id": Number(table_id),
-            "table_locked": Boolean(details_locked_table.value),
-            "date": new Date(`${year}/${date}`),
+            "table_locked": details_locked_table.checked,
+            "date": [Number(year), Number(date.slice(0,2)), Number(date.slice(-2))],
             "time": time,
             "booker_id": Number(booker_id),
-            "note": details_note.innerText
+            "note": details_note.value
         }
+        console.log('LOCKED VALUE :', details_locked_table.checked);
+        console.log('LOCKED OBJ :', Boolean(details_locked_table.checked));
+        
         fetch('/booking_save_api', {
             method: 'POST',
-            body: JSON.stringify(booking_details)
+            body: JSON.stringify(booking_all_details)
         })
-        ////// VENDREDI DEFINIR LA SUITE DU FETCH CI DESSUS
+        .then(() => success_popUp.removeAttribute('class','d-none'))
+        .then(() => {
+            setTimeout(() => {
+                document.location.reload()
+            }, 10000)
+        })
+        .catch(error => window.alert(error.message));
     }
     else {
         window.alert("You must choose a table and type your short name");
@@ -259,14 +271,12 @@ const create_booking = (client_id) => {
 }
 
 //// Set click listener on Book btn
-book_btn.addEventListener('click', () => {
+book_btn.addEventListener('click', async () => {
     // 1 get or create the client
-    let client_id = handle_client_data();
+    let client_id = await handle_client_data();
     
     // 2 create the booking
-    
      create_booking(client_id);
-    
 })
 
 //console.log(checkbox_inputs);

@@ -139,3 +139,16 @@ iframe {
 #details_choose_table td, #details_choose_table th {
     text-align: left;
 }
+
+#successfull_pop-up {
+    z-index: 4000;
+    background-color: lightgreen;
+    color: black;
+    padding-top: 30vh;
+    font-size: 10vh;
+    height: 80vh;
+    width: 100vw;
+    position: fixed;
+    top: 10vw;
+    bottom: 40vh;
+}
