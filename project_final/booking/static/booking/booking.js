@@ -1,3 +1,4 @@
+///////////////////////////////////////// ELEMENTS GETTING /////////////////////////////////
 // Global page variable
 const border_style_default = '1px solid #ced4da';
 const border_style_alert = '1px solid red';
@@ -27,13 +28,14 @@ const success_popUp = document.getElementById('successfull_pop-up');
 // LE TOKEN EST IL UTILISER ????
 const csrf_token = document.querySelector('input[name="csrfmiddlewaretoken"]');
 
-// get the choose lunch or dinner btn ready (to be duplicate in the date list)
+// get the choose lunch or dinner btn templates ready (to be duplicate in the date list)
 const lunch_btn = document.createElement('div');
 lunch_btn.innerHTML = '<button type="button" class="btn btn-sm btn-primary choose_date" data-time="lunch" data-bs-toggle="modal" data-bs-target="#booking_details">Lunch</button>';
 const dinner_btn = document.createElement('div');
 dinner_btn.innerHTML = '<button type="button" class="btn btn-sm btn-primary choose_date" data-time="dinner" data-bs-toggle="modal" data-bs-target="#booking_details">Dinner</button>';
 
 
+///////////////////////////////////////// PAGE AREA /////////////////////////////////
 //// Display the availables dates
 const display_dates = (dates) => {
     current_month = ""
@@ -94,7 +96,66 @@ const display_dates = (dates) => {
     }
 }
 
-//// ill up the booking details form
+//// Fetch criteria and display the results on the page
+const fetch_n_display = (criteria) => {
+    fetch('/booking_api', {
+        method: 'POST',
+        body: JSON.stringify(criteria)
+    })
+    .then((response) => response.json())
+    .then((response) => display_dates(response))
+    .then(() => {
+        /// set event listener on all luch and dinner btn
+        const choose_btns = document.getElementsByClassName('choose_date');
+        for (const btn of choose_btns) {
+            btn.addEventListener('click', event => {
+                const time = event.target.dataset.time;
+                const row_element = event.target.parentElement.parentElement.parentElement;
+                const date_data = JSON.parse(row_element.dataset.date_data);
+                fillUp_details(time, date_data);
+            })
+        }
+    });
+}
+
+
+//// Handle any change on the form inputs
+const handle_inputs_onChange = () => {
+    let search_criteria = {};
+    // store all the criteria in the variable search_criteria
+    search_criteria[select_input.name] = select_input.value;
+    for (const checkbox of checkbox_inputs) {
+        search_criteria[checkbox.name] = checkbox.checked;
+        //checkbox.checked returns true or false
+    }
+
+    // check if there is minimum criteria And if ok => fetch data 
+    if (!search_criteria['time-lunch'] && !search_criteria['time-dinner']) {
+        // if 0 time checked
+        alert.innerText = "At least 1 of Lunch or Dinner must be checked";
+        alert.style.opacity = "1";
+    } else if (!search_criteria['area-ext'] && !search_criteria['area-mai'] && !search_criteria['area-up']) {
+        // if 0 area checked
+        alert.innerText = "At least 1 of area must be checked";
+        alert.style.opacity = "1";
+    } else if (!search_criteria['table-low'] && !search_criteria['table-std'] && !search_criteria['table-high']) {
+        // if 0 table-type checked
+        alert.innerText = "At least 1 of table type must be checked";
+        alert.style.opacity = "1";
+    } else {
+        alert.style.opacity = "0";
+        fetch_n_display(search_criteria);
+    }
+}
+
+//// Set eventListener on every criteria fields
+select_input.addEventListener('input', handle_inputs_onChange);
+for (const checkbox of checkbox_inputs) {
+    checkbox.addEventListener('input', handle_inputs_onChange);
+}
+
+///////////////////////////////////////// BOOKING MODAL AREA /////////////////////////////////
+//// Fill up the booking details form
 const fillUp_details = (time, date_data) => {
     details_date.insertAdjacentText('beforebegin', `${date_data.day} `);
     details_date.innerHTML = `${date_data.month_date}`;
@@ -134,64 +195,8 @@ const fillUp_details = (time, date_data) => {
     }
 }
 
-//// Fetch criteria and display the results on the page
-const fetch_n_display = (criteria) => {
-    fetch('/booking_api', {
-        method: 'POST',
-        body: JSON.stringify(criteria)
-    })
-    .then((response) => response.json())
-    .then((response) => display_dates(response))
-    .then(() => {
-        /// set event listener on all luch and dinner btn
-        const choose_btns = document.getElementsByClassName('choose_date');
-        for (const btn of choose_btns) {
-            btn.addEventListener('click', event => {
-                const time = event.target.dataset.time;
-                const row_element = event.target.parentElement.parentElement.parentElement;
-                const date_data = JSON.parse(row_element.dataset.date_data);
-                fillUp_details(time, date_data);
-            })
-        }
-    });
-}
 
-//// Handle any change on the form inputs
-const handle_inputs_onChange = () => {
-    let search_criteria = {};
-    // store all the criteria in the variable search_criteria
-    search_criteria[select_input.name] = select_input.value;
-    for (const checkbox of checkbox_inputs) {
-        search_criteria[checkbox.name] = checkbox.checked;
-        //checkbox.checked returns true or false
-    }
-
-    // check if there is minimum criteria And if ok => fetch data 
-    if (!search_criteria['time-lunch'] && !search_criteria['time-dinner']) {
-        // if 0 time checked
-        alert.innerText = "At least 1 of Lunch or Dinner must be checked";
-        alert.style.opacity = "1";
-    } else if (!search_criteria['area-ext'] && !search_criteria['area-mai'] && !search_criteria['area-up']) {
-        // if 0 area checked
-        alert.innerText = "At least 1 of area must be checked";
-        alert.style.opacity = "1";
-    } else if (!search_criteria['table-low'] && !search_criteria['table-std'] && !search_criteria['table-high']) {
-        // if 0 table-type checked
-        alert.innerText = "At least 1 of table type must be checked";
-        alert.style.opacity = "1";
-    } else {
-        alert.style.opacity = "0";
-        fetch_n_display(search_criteria);
-    }
-}
-
-//// Set eventListener on every criteria fields
-select_input.addEventListener('input', handle_inputs_onChange);
-for (const checkbox of checkbox_inputs) {
-    checkbox.addEventListener('input', handle_inputs_onChange);
-}
-
-//// Check and fetch client data
+//// Check and fetch client data on submission
 const handle_client_data = async () => {
     const client_phone = details_phone.value;
     const client_first = details_first.value;
@@ -252,11 +257,17 @@ const create_booking = (client_id) => {
             method: 'POST',
             body: JSON.stringify(booking_all_details)
         })
-        .then(() => success_popUp.removeAttribute('class','d-none'))
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("The booking already exists, there is something wrong with the make of possible_tables list");
+            } else {
+                success_popUp.removeAttribute('class','d-none')
+            }
+        })
         .then(() => {
             setTimeout(() => {
                 document.location.reload()
-            }, 10000)
+            }, 3000)
         })
         .catch(error => window.alert(error.message));
     }
@@ -279,7 +290,6 @@ book_btn.addEventListener('click', async () => {
      create_booking(client_id);
 })
 
-//console.log(checkbox_inputs);
 
 //// Set a DOMLoaded listener to fetch available tables with the default criteria
 window.addEventListener("DOMContentLoaded", handle_inputs_onChange);
@@ -297,4 +307,3 @@ details_choose_table.addEventListener('input', () => {
 });
 details_booker.addEventListener('input', border_defaulter);
 
-// JEUDI CREER LE FETCHAGE DU BOOKING EN JS ET SUR API

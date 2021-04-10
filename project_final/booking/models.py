@@ -83,7 +83,7 @@ class Table(models.Model):
 class Client(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50, blank=True)
-    tel = models.CharField(max_length=21)
+    tel = models.CharField(max_length=21, unique=True)
     is_foreign_phone = models.BooleanField(default=False)
     is_not_welcome = models.BooleanField(default=False)
     is_disabled = models.BooleanField(default=False)

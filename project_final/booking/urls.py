@@ -22,5 +22,6 @@ urlpatterns = [
     path('staff_delete/<int:staff_id>', views.staff_delete, name="staff_delete"),
     path('booking_api', views.booking_api, name="booking_api"),
     path('booking_save_api', views.booking_save_api),
-    path('client_api', views.client_api, name="client_api")
+    path('client_api', views.client_api, name="client_api"),
+    path('easy_client', views.easy_client_api)
 ]
