@@ -108,11 +108,10 @@
                 
             </div>
         </section>
-        <section id="person" class="hidden">
-            <div class="container">
-                
-            </div>
-        </section>
+        {% if book_search_tab %}
+            {% include "booking/persons.html" %}
+        {% endif %}
+        
         <!-- ###### ONLY MAMAGER USER ####### -->
 
         {% if  user.groups.all.0.name == "manager" %}

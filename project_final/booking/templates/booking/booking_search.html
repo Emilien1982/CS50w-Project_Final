@@ -124,24 +124,24 @@
                             <div id="phone_number">
                                 <label><input type="checkbox" id="details_foreign_num"> Is foreign number</label>
                                 <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" list="phone_list" id="details_phone" placeholder="Phone Number" required>
+                                    <input type="text" class="form-control" list="phone_list" id="details_phone" placeholder="Phone Number" autocomplete="off" required>
                                     <label for="details_phone">Phone Number</label>
-                                    <datalist id="phone_list">
-                                        <!-- SUPPRIMER LES OPTIONS QUAND QUELQUES CLIENTS SERONT CREES -->
-                                        <option value="San Francisco">
-                                        <option value="New York">
-                                        <option value="Seattle">
-                                        <option value="Los Angeles">
-                                        <option value="Chicago">
-                                    </datalist>
+                                    <!-- <datalist id="phone_list">
+                                        <!- Option come from javascript regarding the first digits typed in the phone field ->
+                                    </datalist> -->
+                                </div>
+                                <div id="phone_matchers" class="overflow-scroll">
+                                    <ul id="phone_matchers_list">
+
+                                    </ul>
                                 </div>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="details_first" placeholder="First Name" required>
+                                <input type="text" class="form-control" id="details_first" placeholder="First Name" autocomplete="off" required>
                                 <label for="details_first">First Name</label>
                             </div>
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="details_last" placeholder="Last Name">
+                                <input type="text" class="form-control" id="details_last" placeholder="Last Name" autocomplete="off">
                                 <label for="details_last">Last Name</label>
                             </div>
                         </div>

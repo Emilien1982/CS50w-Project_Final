@@ -8,8 +8,9 @@ from django.urls import reverse
 from datetime import date, datetime, timedelta
 
 import json
+from django.core.serializers import serialize
 
-from .models import User, Table, Client, WeekDayOpened, DateSpecial, Booking, Staff, TableForm, DateForm, StaffForm
+from .models import User, Table, Client, WeekDayOpened, DateSpecial, Booking, Staff, TableForm, DateForm, StaffForm, ClientForm
 
 
 # Create your views here.
@@ -23,7 +24,7 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
-            return HttpResponseRedirect(reverse("booking"))
+            return HttpResponseRedirect(reverse("booking_list"))
         else:
             return render(request, "booking/login.html", {
                 "message": "Invalid email and/or password."
@@ -79,7 +80,10 @@ def table(request):
 
 
 def person(request):
-    pass
+    return render(request, "booking/persons.html", {
+        "person_tab": True,
+        "client_form": ClientForm()
+    })
 
 
 @login_required
@@ -200,7 +204,7 @@ def table_update(request, table_id):
 def table_delete(request, table_id):
     table_to_delete = Table.objects.get(pk=table_id)
     delete_fct_return = table_to_delete.delete()
-    if delete_fct_return[0] == 1:
+    if delete_fct_return[0] >= 1:
         return HttpResponseRedirect(reverse("table"))
     else:
         return HttpResponse("The table hasn't been deleted", status=403)
@@ -209,7 +213,7 @@ def table_delete(request, table_id):
 def date_delete(request, date_id):
     date_to_delete = DateSpecial.objects.get(pk=date_id)
     delete_fct_return = date_to_delete.delete()
-    if delete_fct_return[0] == 1:
+    if delete_fct_return[0] >= 1:
         return HttpResponseRedirect(reverse("date_special"))
     else:
         return HttpResponse("The date hasn't been deleted", status=403)
@@ -218,8 +222,8 @@ def date_delete(request, date_id):
 def staff_delete(request, staff_id):
     staff_to_delete = Staff.objects.get(pk=staff_id)
     delete_fct_return = staff_to_delete.delete()
-    if delete_fct_return[0] == 1:
-        HttpResponse(status=200)
+    if delete_fct_return[0] >= 1:
+        return HttpResponse(status=200)
     else:
         return HttpResponse("The date hasn't been deleted", status=403)
 
@@ -338,6 +342,7 @@ def booking_save_api(request):
 
 @login_required
 @csrf_exempt
+# Update or create the client from the booking form
 def client_api(request):
     if request.method == 'POST':
         client_data = json.loads(request.body)
@@ -353,7 +358,74 @@ def client_api(request):
     else:
         return HttpResponseNotAllowed(['POST'])
 
+
 @login_required
 @csrf_exempt
-def easy_client_api(request):
-    pass
+# Update the client from the "person" page
+def client_update_api(request):
+    if request.method == 'POST':
+        client_data = json.loads(request.body)
+        # client_data contains 2 keys: 'id' and 'fields' (which contains as many keys as Client have fields)
+        try:
+            d = client_data['fields']
+            Client.objects.filter(pk=client_data['id']).update(**d)
+        except Client.DoesNotExist:
+            return JsonResponse({"error": "Client not found."}, status=404)
+    return HttpResponse(status=200)
+
+
+@login_required
+@csrf_exempt
+# Get a list of client that match the search criteria
+def easy_client_api(request, feature):
+    if request.method == 'GET':
+        # When using GET method, feature is the id of the wanted client
+        client_id = int(feature)
+        try:
+            client = Client.objects.get(pk=client_id)
+        except Client.DoesNotExist:
+            return JsonResponse({"error": "Client not found."}, status=404)
+        return JsonResponse(client.serialize())
+
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        matching_clients=''
+
+        # matching_clients filters vary regarding the origin of request (determinated by the 'feature' fields)
+        if feature == 'from_booking':
+            matching_clients = Client.objects.filter(tel__startswith=data)
+        if feature == 'search':
+            matching_clients = Client.objects.filter(
+                first_name__icontains=data['first_name'],
+                last_name__icontains=data['last_name'],
+                tel__icontains=data['tel']
+            )
+            # Checkbox are treated appart, this way their fields are filtered only if checked
+            # That makes more sense when search for a client that we don't know all the details
+            if data['is_foreign_phone']:
+                matching_clients = matching_clients.filter(is_foreign_phone=True)
+            if data['is_not_welcome']:
+                matching_clients = matching_clients.filter(is_not_welcome=True)
+            if data['is_disabled']:
+                matching_clients = matching_clients.filter(is_disabled=True)
+
+        # if the query is empty
+        if len(matching_clients) == 0:
+            return HttpResponse(status=204)
+        
+        # if the query has 1 or more results: transform the query as json then send it
+        data = serialize('json', matching_clients)
+        return HttpResponse(data, content_type="application/json")
+    else:
+        return HttpResponseNotAllowed(['GET', 'POST'])
+
+@login_required
+@csrf_exempt
+# Get a list of client that match the search criteria
+def client_delete_api(request, client_id):
+    client = Client.objects.get(pk=client_id)
+    delete_fct_return = client.delete()
+    if delete_fct_return[0] >= 1:
+        return HttpResponse(status=200)
+    else:
+        return HttpResponse("The client hasn't been deleted", status=403)

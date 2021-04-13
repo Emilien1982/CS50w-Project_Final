@@ -92,6 +92,17 @@ class Client(models.Model):
     def __str__(self):
         return '%s %s' % (self.first_name, self.last_name)
 
+    def serialize(self):
+        return {
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "tel": self.tel,
+            "is_foreign_phone": self.is_foreign_phone,
+            "is_not_welcome": self.is_not_welcome,
+            "is_disabled": self.is_disabled,
+            "note": self.note
+        }
+
 class WeekDayOpened(models.Model):
     weekday = models.CharField(
         max_length=3,
@@ -154,3 +165,9 @@ class StaffForm(ModelForm):
     class Meta:
         model = Staff
         fields = '__all__'
+
+
+class ClientForm(ModelForm):
+    class Meta:
+        model = Client
+        exclude = ['note']

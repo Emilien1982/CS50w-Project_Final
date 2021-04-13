@@ -18,6 +18,8 @@ const details_tables = document.getElementById('details_tables');
 const details_locked_table = document.getElementById('details_locked_table');
 const details_alert = document.getElementById('details_alert');
 const details_phone = document.getElementById('details_phone');
+const details_matchers = document.getElementById('phone_matchers');
+const details_matchers_list = document.getElementById('phone_matchers_list');
 const details_foreign_num = document.getElementById('details_foreign_num');
 const details_first = document.getElementById('details_first');
 const details_last = document.getElementById('details_last');
@@ -96,6 +98,7 @@ const display_dates = (dates) => {
     }
 }
 
+
 //// Fetch criteria and display the results on the page
 const fetch_n_display = (criteria) => {
     fetch('/booking_api', {
@@ -148,11 +151,16 @@ const handle_inputs_onChange = () => {
     }
 }
 
+
 //// Set eventListener on every criteria fields
 select_input.addEventListener('input', handle_inputs_onChange);
 for (const checkbox of checkbox_inputs) {
     checkbox.addEventListener('input', handle_inputs_onChange);
 }
+
+//// Set a DOMLoaded listener to fetch available tables with the default criteria
+window.addEventListener("DOMContentLoaded", handle_inputs_onChange);
+
 
 ///////////////////////////////////////// BOOKING MODAL AREA /////////////////////////////////
 //// Fill up the booking details form
@@ -224,9 +232,9 @@ const handle_client_data = async () => {
     return client_id;
 }
 
+
 //// Create a booking
 const create_booking = (client_id) => {
-    console.log( client_id);
     let table_id = '';
     for (const table_input of document.getElementsByName('table')) {
         if (table_input.checked) { table_id = table_input.value }
@@ -250,8 +258,6 @@ const create_booking = (client_id) => {
             "booker_id": Number(booker_id),
             "note": details_note.value
         }
-        console.log('LOCKED VALUE :', details_locked_table.checked);
-        console.log('LOCKED OBJ :', Boolean(details_locked_table.checked));
         
         fetch('/booking_save_api', {
             method: 'POST',
@@ -281,6 +287,7 @@ const create_booking = (client_id) => {
     }
 }
 
+
 //// Set click listener on Book btn
 book_btn.addEventListener('click', async () => {
     // 1 get or create the client
@@ -290,9 +297,6 @@ book_btn.addEventListener('click', async () => {
      create_booking(client_id);
 })
 
-
-//// Set a DOMLoaded listener to fetch available tables with the default criteria
-window.addEventListener("DOMContentLoaded", handle_inputs_onChange);
 
 //// Set input listener to turn border back to normal when typing in field whise turned red after emplty submission try
 const border_defaulter = (event) => {
@@ -307,3 +311,68 @@ details_choose_table.addEventListener('input', () => {
 });
 details_booker.addEventListener('input', border_defaulter);
 
+/// When a matched client suggestion is clicked
+const autocomplete_matcher_details = (event) => {
+    const details = JSON.parse(event.target.dataset.matcher_details);
+    details_matchers.style.display = 'none';
+    details_foreign_num.checked = details.is_foreign_phone;
+    details_phone.value = details.tel;
+    details_first.value = details.first_name;
+    details_last.value = details.last_name;
+    if (details.is_disabled) {
+        details_alert.innerText = `This client need a table accessable for disabled`;
+        details_alert.style.display = 'block';
+    }
+    if (details.is_not) {
+        details_alert.innerText += `This client is not welcome, see the note on his details`;
+        details_alert.style.display = 'block';
+    }
+    
+}
+
+///// easy client feature : if 6 or more digits are typed in the phone number field, user can click on suggestions to autocomplete others fields
+/// Display the matching clients
+
+const display_matchers = (clients) => {
+    details_matchers.style.display = 'block';
+    for (const client of clients) {
+        // nb: client is the items of the django queryset (with 'id', 'model', etc...) the client useful data are in client.fields
+        const new_option = document.createElement('li');
+        new_option.innerText = client.fields.tel;
+        new_option.setAttribute('data-matcher_details', JSON.stringify(client.fields));
+        details_matchers_list.appendChild(new_option);
+        new_option.addEventListener('click', autocomplete_matcher_details);
+    }
+}
+
+/// Fetch matching clients 
+const easy_client = async (typed) => {
+    const matching_clients = await fetch('/easy_client/from_booking', {
+        method: 'POST',
+        body: JSON.stringify(typed)
+    })
+    .then(resp => {
+        if (resp.status === 204) {
+            return null;
+        }
+        // status 204 : the request worked fine but no matching client found
+        return resp.json();
+    })
+
+    return  matching_clients;
+}
+
+/// set the input listener on the phone field
+details_phone.addEventListener('input', async (event) => {
+    details_matchers_list.innerHTML = '';
+    const typed = details_phone.value;
+    if (typed.length >= 6) {
+        const matching_clients = await easy_client(typed);
+        if (matching_clients !== null) {
+            display_matchers(matching_clients);
+        }
+    }
+})
+
+
+///// LUNDI RESTE A CHECKER LE BON FCTIONNT DE L AUTOCOMPLETE (AVEC CLIENT DISABLED ET NOT_WELCOME) ET PEUT ETRE AJOUTER CHAMP "DISABLED"

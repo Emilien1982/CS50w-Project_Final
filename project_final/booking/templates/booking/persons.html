@@ -1,0 +1,85 @@
+{% extends "booking/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<section id="person">
+    <div class="container">
+        <div id="page_alert" class="d-none" role="alert">
+        </div>
+        <div id="search-clients">
+            <h2>Select the criteria you want:</h2>
+            <table>
+                {{ client_form.as_table }}
+            </table>
+            <button id="search_btn" type="button" class="btn btn-primary">Search</button>
+        </div>
+        <hr>
+        <div id="results-clients">
+            <h2>Here are the matching clients:</h2>
+            <ul>
+
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Modal for editing client -->
+
+<div class="modal fade" id="edit_client" tabindex="-1" aria-labelledby="edit_clientLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="edit_clientLabel">Edit client</h5>
+          <button id="delete_client_btn" type="button" class="btn btn-danger" data-bs-dismiss="modal">Delete</button>
+        </div>
+        <div id="modal_alert" class="d-none" role="alert">
+        </div>
+        <div class="modal-body">
+            <table>
+                <!-- can't use { client_form } again as it duplicates inputs with the same id -->
+                <tbody>
+                    <tr>
+                        <th><label for="edit_first_name">First name:</label></th>
+                        <td><input type="text" name="first_name" maxlength="50" required="" id="edit_first_name" class="edit_client_inputs"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="edit_last_name">Last name:</label></th>
+                        <td><input type="text" name="last_name" maxlength="50" id="edit_last_name" class="edit_client_inputs"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="edit_tel">Tel:</label></th>
+                        <td><input type="text" name="tel" maxlength="21" required="" id="edit_tel" class="edit_client_inputs"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="edit_is_foreign_phone">Is foreign phone:</label></th>
+                        <td><input type="checkbox" name="is_foreign_phone" id="edit_is_foreign_phone" class="edit_client_inputs"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="edit_is_not_welcome">Is not welcome:</label></th>
+                        <td><input type="checkbox" name="is_not_welcome" id="edit_is_not_welcome" class="edit_client_inputs"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="edit_is_disabled">Is disabled:</label></th>
+                        <td><input type="checkbox" name="is_disabled" id="edit_is_disabled" class="edit_client_inputs"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="edit_note">Note:</label></th>
+                        <td><textarea type="text" name="note" id="edit_note" rows="5" class="edit_client_inputs"></textarea></td>
+                        <!-- type attribut doesn't exist on <textarea> but it's useful to iterate overs inputs with JavaScript -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+          <button id="close_btn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="save_client_updates_btn" type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+
+<script src="{% static 'booking/persons.js' %}"></script>
+
+{% endblock %}

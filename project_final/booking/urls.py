@@ -23,5 +23,7 @@ urlpatterns = [
     path('booking_api', views.booking_api, name="booking_api"),
     path('booking_save_api', views.booking_save_api),
     path('client_api', views.client_api, name="client_api"),
-    path('easy_client', views.easy_client_api)
+    path('easy_client/<str:feature>', views.easy_client_api),
+    path('client_update_api', views.client_update_api),
+    path('client_delete_api/<int:client_id>', views.client_delete_api)
 ]
