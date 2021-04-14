@@ -44,9 +44,6 @@ def index(request):
         "booking_end": datetime.today() + timedelta(days=62)
     })
 
-def deleted(request):
-    pass
-
 def booking_search(request):
     return render(request, "booking/index.html", {
         "book_search_tab": True,
@@ -54,7 +51,34 @@ def booking_search(request):
     })
 
 def booking_list(request):
-    return render(request, "booking/index.html")
+    today_obj = datetime.today().date()
+    next_bookings = Booking.objects.filter(booking_date__gte=today_obj).order_by('booking_date', '-booking_time')
+    # make a list of UNIQUE dates, to be able to iterate in the template and display the lunch / dinner button properly
+    date_list = []
+    current_date = ''
+    for booking in next_bookings:
+        temp = {
+            'date': '',
+            'lunch': False,
+            'dinner': False
+        }
+        if booking.booking_date != current_date:
+            temp['date'] = booking.booking_date
+            current_date = booking.booking_date
+            if booking.booking_time == 'lunch':
+                temp['lunch'] = True
+            if booking.booking_time == 'dinner':
+                temp['dinner'] = True
+            date_list.append(temp)
+        else:
+            if booking.booking_time == 'lunch':
+                date_list[-1]['lunch'] = True
+            if booking.booking_time == 'dinner':
+                date_list[-1]['dinner'] = True
+
+    return render(request, "booking/booking_list.html", {
+        "date_list": date_list
+    })
 
 @login_required
 def table(request):
@@ -310,7 +334,42 @@ def booking_api(request):
         return JsonResponse(possible_dates, safe=False)
         #### APRES AVOIR CREER DES BOOKINGS, REVOIR SI possible_dates EST BIEN APPROPRIE
     else:
-        return HttpResponse(status=403)
+        return HttpResponseNotAllowed(['POST'])
+
+
+@login_required
+@csrf_exempt
+def get_booking(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        bookings = Booking.objects.filter(booking_date=data['date'], booking_time=data['time']).select_related('client', 'table', 'creator').order_by('table__reference')
+        bookings_list = list(bookings.values())
+        #print(bookings_list)
+        bookings_full = []
+        for booking in bookings_list:
+            client = bookings.get(pk=booking['id']).client
+            booking['client_name'] = f'{client.first_name} {client.last_name}'
+            booking['client_tel'] = client.tel
+            booking['client_is_disabled'] = client.is_disabled
+
+            table = bookings.get(pk=booking['id']).table
+            booking['table_reference'] = table.reference
+            booking['table_is_joker'] = table.is_joker
+            booking['table_is_for_disabled'] = table.is_for_disabled
+            booking['table_area'] = table.area
+            booking['table_form_type'] = table.form_type
+
+            creator = bookings.get(pk=booking['id']).creator
+            booking['creator_short_name'] = creator.short_name
+
+            bookings_full.append(booking)
+
+        return  JsonResponse(bookings_full, safe=False)
+    else:
+        return HttpResponseNotAllowed(['POST'])
+
+
+
 
 @login_required
 @csrf_exempt
@@ -338,6 +397,27 @@ def booking_save_api(request):
 
     else:
         return HttpResponseNotAllowed(['POST'])
+
+
+@login_required
+@csrf_exempt
+def booking_delete(request, booking_id):
+    booking = Booking.objects.get(pk=booking_id)
+    fct_return = booking.delete()
+    if fct_return[0] != 1:
+        return HttpResponse(status=400)
+    else:
+        return HttpResponse(status=200)
+
+
+@login_required
+@csrf_exempt
+def booking_honored(request, booking_id):
+    booking = Booking.objects.get(pk=booking_id)
+    #Toggle the honored boolean
+    booking.honored = not booking.honored
+    booking.save()
+    return HttpResponse(status=200)
 
 
 @login_required

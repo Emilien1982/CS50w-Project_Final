@@ -53,19 +53,24 @@
                             <a class="nav-link active" aria-current="page" href="{% url 'booking_list' %}" id="nav-home">Booking List</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="{% url 'deleted' %}" id="nav-deleted">Deleted</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{% url 'person' %}" id="nav-person">Persons</a>
                         {% if  user.groups.all.0.name == "manager" %}
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="{% url 'table' %}" id="nav-table">Tables</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="{% url 'date_special' %}" id="nav-date_special">Special Dates</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="{% url 'staff' %}" id="nav-staff">Staff Names</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                  Settings
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <li class="dropdown-item">
+                                        <a class="nav-link active" aria-current="page" href="{% url 'table' %}" id="nav-table">Tables</a>
+                                    </li>
+                                    <li class="dropdown-item">
+                                        <a class="nav-link active" aria-current="page" href="{% url 'date_special' %}" id="nav-date_special">Special Dates</a>
+                                    </li>
+                                    <li class="dropdown-item">
+                                        <a class="nav-link active" aria-current="page" href="{% url 'staff' %}" id="nav-staff">Staff Names</a>
+                                    </li>
+                                </ul>
+                              </li>
                         {% endif %}
                     {% endif %}
                     </ul>

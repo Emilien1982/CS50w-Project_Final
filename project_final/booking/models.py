@@ -141,6 +141,7 @@ class Booking(models.Model):
     creation_date = models.DateTimeField(auto_now=True)
     creator = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, blank=True)
     note = models.CharField(max_length=140, blank=True)
+    honored = models.BooleanField(default=False)
 
     class Meta:
         constraints = [

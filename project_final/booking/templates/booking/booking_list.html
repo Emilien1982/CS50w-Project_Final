@@ -1,0 +1,96 @@
+{% extends "booking/layout.html" %}
+{% load static %}
+
+{% block body %}
+
+<section id="booking_list">
+    <div class="container">
+        <div id="list">
+            <h2>Click on the date and time you want:</h2>
+            <table>
+                <thead>
+                    <th>
+
+                    </th>
+                    <th>
+                        Date
+                    </th>
+                    <th>
+                        Lunch
+                    </th>
+                    <th>
+                        Diner
+                    </th>
+                </thead>
+                {% regroup date_list by date|date:"W" as list_by_week %}
+                <tbody>
+                    {% for week, week_dates in list_by_week %}
+                    <tr>
+                        <td>Week {{ week }}</td>
+                        <td colspan="3">---------------------------------</td>
+                    </tr>
+                    {% for date in week_dates %}
+                    <tr>
+                        <td>
+
+                        </td>
+                        <td>
+                            {{ date.date|date:"M j - D" }}
+                        </td>
+                        <td>
+                            {% if date.lunch %}
+                                <button type="button" class="btn btn-sm btn-primary lunch" data-date='{{ date.date|date:"Y-m-d" }}' data-bs-toggle="modal" data-bs-target="#detailsModal">Lunch</button>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if date.dinner %}
+                                <button type="button" class="btn btn-sm btn-primary dinner" data-date='{{ date.date|date:"Y-m-d" }}' data-bs-toggle="modal" data-bs-target="#detailsModal">Dinner</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+<!-- MODAL for choosen time details -->
+        <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="detailsModalLabel">Date details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Locked</th>
+                                <th>Table</th>
+                                <th>Client</th>
+                                <th>Phone</th>
+                                <th>Booked by</th>
+                                <th>Note</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<script src="{% static 'booking/booking_list.js' %}"></script>
+
+{% endblock %}
