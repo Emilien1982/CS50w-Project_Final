@@ -5,14 +5,17 @@ const border_style_alert = '1px solid red';
 
 // get elements in the criteria area
 const alert = document.getElementById('alert-message');
-const dates_list = document.getElementById('dates-list');
 const select_input = document.querySelector("form select");
 const checkbox_inputs = document.querySelectorAll("form input[type='checkbox']");
 
+// get elements in the results area
+const dates_list = document.getElementById('dates-list');
+
 // get elements in the modal area
-const details_date = document.getElementById('details_date');
-const details_capacity = document.getElementById('details_capacity');
-const details_time = document.getElementById('details_time');
+const details_datetime = document.getElementById('details_datetime');
+let details_date = document.getElementById('details_date');
+let details_time = document.getElementById('details_time');
+let details_capacity = document.getElementById('details_capacity');
 const details_choose_table = document.querySelector('#details_choose_table table');
 const details_tables = document.getElementById('details_tables');
 const details_locked_table = document.getElementById('details_locked_table');
@@ -60,7 +63,10 @@ const display_dates = (dates) => {
             "day": day,
             "month_date": month_date,
             "year": year,
-            "tables": date_item.tables
+            "tables": {
+                "lunch": date_item.lunch,
+                "dinner": date_item.dinner
+            }
         }
         /// Set the "month row heading" before the first possible_date of each month
         if (month !== current_month) {
@@ -80,20 +86,21 @@ const display_dates = (dates) => {
             <td>${month_date}</td>`;
         ////////// display lunch btn if booking possible
         const lunch_cell = document.createElement('td');
-        if (date_item.lunch) {
+        if (date_item.lunch.length !== 0) {
             lunch_cell.appendChild(lunch_btn.cloneNode(true));
         } else {
             lunch_cell.innerText = " - ";
         }
         date_row.appendChild(lunch_cell);
-        ////////// display diner btn if booking possible
+        ////////// display dinner btn if booking possible
         const dinner_cell = document.createElement('td');
-        if (date_item.dinner) {
+        if (date_item.dinner.length !== 0) {
             dinner_cell.appendChild(dinner_btn.cloneNode(true));
         } else {
             dinner_cell.innerText = " - ";
         }
         date_row.appendChild(dinner_cell);
+        ////////// add the row to the results
         dates_list.appendChild(date_row);
     }
 }
@@ -108,7 +115,7 @@ const fetch_n_display = (criteria) => {
     .then((response) => response.json())
     .then((response) => display_dates(response))
     .then(() => {
-        /// set event listener on all luch and dinner btn
+        /// set event listener on all lunch and dinner btn
         const choose_btns = document.getElementsByClassName('choose_date');
         for (const btn of choose_btns) {
             btn.addEventListener('click', event => {
@@ -165,13 +172,14 @@ window.addEventListener("DOMContentLoaded", handle_inputs_onChange);
 ///////////////////////////////////////// BOOKING MODAL AREA /////////////////////////////////
 //// Fill up the booking details form
 const fillUp_details = (time, date_data) => {
-    details_date.insertAdjacentText('beforebegin', `${date_data.day} `);
-    details_date.innerHTML = `${date_data.month_date}`;
-    details_date.setAttribute('data-year', date_data.year);
-    details_capacity.innerHTML = `${select_input.value}`;
-    document.getElementById('details_time').innerHTML = time;
+    details_datetime.innerHTML=`
+        <span>${date_data.day}  <span id="details_date" data-year="${date_data.year}">${date_data.month_date}</span>  ---  <span id="details_time">${time}</span></span>
+        <span><span id="details_capacity">${select_input.value}</span> persons</span>`;
+    details_date = document.getElementById('details_date');
+    details_time = document.getElementById('details_time');
+    details_capacity = document.getElementById('details_capacity');
     details_tables.innerHTML = '';
-    const tables = date_data.tables;
+    const tables = date_data.tables[time];
     for (const table of tables) {
         const table_entry = document.createElement('tr');
         table_entry.innerHTML = `
@@ -258,7 +266,7 @@ const create_booking = (client_id) => {
             "booker_id": Number(booker_id),
             "note": details_note.value
         }
-        
+        console.log(booking_all_details);
         fetch('/booking_save_api', {
             method: 'POST',
             body: JSON.stringify(booking_all_details)
@@ -313,8 +321,10 @@ details_booker.addEventListener('input', border_defaulter);
 
 /// When a matched client suggestion is clicked
 const autocomplete_matcher_details = (event) => {
-    const details = JSON.parse(event.target.dataset.matcher_details);
+    // hide matchers list
     details_matchers.style.display = 'none';
+    // display matcher details
+    const details = JSON.parse(event.target.dataset.matcher_details);
     details_foreign_num.checked = details.is_foreign_phone;
     details_phone.value = details.tel;
     details_first.value = details.first_name;
@@ -327,7 +337,6 @@ const autocomplete_matcher_details = (event) => {
         details_alert.innerText += `This client is not welcome, see the note on his details`;
         details_alert.style.display = 'block';
     }
-    
 }
 
 ///// easy client feature : if 6 or more digits are typed in the phone number field, user can click on suggestions to autocomplete others fields
@@ -338,8 +347,9 @@ const display_matchers = (clients) => {
     for (const client of clients) {
         // nb: client is the items of the django queryset (with 'id', 'model', etc...) the client useful data are in client.fields
         const new_option = document.createElement('li');
-        new_option.innerText = client.fields.tel;
+        new_option.innerText = `${client.fields.tel} - ${client.fields.first_name} ${client.fields.last_name}`;
         new_option.setAttribute('data-matcher_details', JSON.stringify(client.fields));
+        new_option.setAttribute('class', "clickable");
         details_matchers_list.appendChild(new_option);
         new_option.addEventListener('click', autocomplete_matcher_details);
     }
@@ -372,6 +382,12 @@ details_phone.addEventListener('input', async (event) => {
             display_matchers(matching_clients);
         }
     }
+})
+
+details_phone.addEventListener('focusout', () => {
+    setTimeout(() => {
+        details_matchers.style.display = 'none';
+    }, 500)
 })
 
 

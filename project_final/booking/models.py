@@ -48,7 +48,7 @@ WEEKDAY_CHOICES = [
 
 TIME_CHOICES = [
     ("lunch", "lunch"),
-    ("diner", "diner")
+    ("dinner", "dinner")
 ]
 
 ## Models
@@ -109,8 +109,8 @@ class WeekDayOpened(models.Model):
         choices=WEEKDAY_CHOICES,
         unique=True
     )
-    is_opened_lunch = models.BooleanField(default=False)
-    is_opened_dinner = models.BooleanField(default=False)
+    at_lunch = models.BooleanField(default=False)
+    at_dinner = models.BooleanField(default=False)
 
 class DateSpecial(models.Model):
     date = models.DateField(unique=True)
@@ -134,7 +134,7 @@ class Booking(models.Model):
     is_wanted_table = models.BooleanField(default=False)
     booking_date = models.DateField()
     booking_time = models.CharField(
-        max_length=5,
+        max_length=6,
         choices=TIME_CHOICES,
         default="lunch"
     )

@@ -1,5 +1,7 @@
+{% extends "booking/layout.html" %}
 {% load static %}
 
+{% block body %}
 <section id="extra-date">
     <div class="container">
 
@@ -19,8 +21,8 @@
                         {% for day in weekdays %}
                             <tr>
                                 <th>{{ day.weekday }}</th>
-                                <th>{% if day.is_opened_lunch %}✔️{% else %} - {% endif %}</th>
-                                <th>{% if day.is_opened_dinner %}✔️{% else %} - {% endif %}</th>
+                                <th>{% if day.at_lunch %}✔️{% else %} - {% endif %}</th>
+                                <th>{% if day.at_dinner %}✔️{% else %} - {% endif %}</th>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -30,7 +32,7 @@
                     Change
                 </button>
             </div>
-            <!-- Pop up "Change" part -->
+            <!-- Pop up MODAL "Change" part -->
             <div class="modal fade" id="weekdays_edit" tabindex="-1" aria-labelledby="weekdays_editLabel" aria-hidden="true">
                 <div class="modal-dialog">
                 <div class="modal-content">
@@ -54,64 +56,64 @@
                                     <tr id="monday">
                                         <th>Monday</th>
                                         <th><input class="lunch" type="checkbox" name="mon-lun"
-                                            {% if weekdays.0.is_opened_lunch %} checked{% endif %}
+                                            {% if weekdays.0.at_lunch %} checked{% endif %}
                                             ></th>
                                         <th><input class="dinner" type="checkbox" name="mon-din"
-                                            {% if weekdays.0.is_opened_dinner %} checked{% endif %}
+                                            {% if weekdays.0.at_dinner %} checked{% endif %}
                                             ></th>
                                     </tr>
                                     <tr id="tuesday">
                                         <th>Tuesday</th>
                                         <th><input class="lunch" type="checkbox" name="tue-lun"
-                                            {% if weekdays.1.is_opened_lunch %} checked{% endif %}
+                                            {% if weekdays.1.at_lunch %} checked{% endif %}
                                             ></th>
                                         <th><input class="dinner" type="checkbox" name="tue-din"
-                                            {% if weekdays.1.is_opened_dinner %} checked{% endif %}
+                                            {% if weekdays.1.at_dinner %} checked{% endif %}
                                             ></th>
                                     </tr>
                                     <tr id="wednesday">
                                         <th>Wednesday</th>
                                         <th><input class="lunch" type="checkbox" name="wed-lun"
-                                            {% if weekdays.2.is_opened_lunch %} checked{% endif %}
+                                            {% if weekdays.2.at_lunch %} checked{% endif %}
                                             ></th>
                                         <th><input class="dinner" type="checkbox" name="wed-din"
-                                            {% if weekdays.2.is_opened_dinner %} checked{% endif %}
+                                            {% if weekdays.2.at_dinner %} checked{% endif %}
                                             ></th>
                                     </tr>
                                     <tr id="thursday">
                                         <th>Thursday</th>
                                         <th><input class="lunch" type="checkbox" name="thu-lun"
-                                            {% if weekdays.3.is_opened_lunch %} checked{% endif %}
+                                            {% if weekdays.3.at_lunch %} checked{% endif %}
                                             ></th>
                                         <th><input class="dinner" type="checkbox" name="thu-din"
-                                            {% if weekdays.3.is_opened_dinner %} checked{% endif %}
+                                            {% if weekdays.3.at_dinner %} checked{% endif %}
                                             ></th>
                                     </tr>
                                     <tr id="friday">
                                         <th>Friday</th>
                                         <th><input class="lunch" type="checkbox" name="fri-lun"
-                                            {% if weekdays.4.is_opened_lunch %} checked{% endif %}
+                                            {% if weekdays.4.at_lunch %} checked{% endif %}
                                             ></th>
                                         <th><input class="dinner" type="checkbox" name="fri-din"
-                                            {% if weekdays.4.is_opened_dinner %} checked{% endif %}
+                                            {% if weekdays.4.at_dinner %} checked{% endif %}
                                             ></th>
                                     </tr>
                                     <tr id="saturday">
                                         <th>Saturday</th>
                                         <th><input class="lunch" type="checkbox" name="sat-lun"
-                                            {% if weekdays.5.is_opened_lunch %} checked{% endif %}
+                                            {% if weekdays.5.at_lunch %} checked{% endif %}
                                             ></th>
                                         <th><input class="dinner" type="checkbox" name="sat-din"
-                                            {% if weekdays.5.is_opened_dinner %} checked{% endif %}
+                                            {% if weekdays.5.at_dinner %} checked{% endif %}
                                             ></th>
                                     </tr>
                                     <tr id="sunday">
                                         <th>Sunday</th>
                                         <th><input class="lunch" type="checkbox" name="sun-lun"
-                                            {% if weekdays.6.is_opened_lunch %} checked{% endif %}
+                                            {% if weekdays.6.at_lunch %} checked{% endif %}
                                             ></th>
                                         <th><input class="dinner" type="checkbox" name="sun-din"
-                                            {% if weekdays.6.is_opened_dinner %} checked{% endif %}
+                                            {% if weekdays.6.at_dinner %} checked{% endif %}
                                             ></th>
                                     </tr>
                                 </tbody>
@@ -130,6 +132,11 @@
         <hr>
 
         <div id="date-list">
+            <!-- invisible until dates with bookings are deleted -->
+            <div id="date-booking-conflits" class="d-none">
+                <h3>Orphelin bookings (on deleted special dates)</h3>
+                <hr>
+            </div>
             <!-- visible part -->
             <div>
                 <h2>Special dates list</h2>
@@ -155,7 +162,19 @@
                                 <td>
                                     {% if date.at_dinner %} ✔️ {% else %} - {% endif %}
                                 </td>
-                                <td><button class="btn btn-sm btn-primary date_delete" data-date_id='{{ date.id }}' type="button">Remove</button></td>
+                                <td><button class="btn btn-sm btn-primary date_delete"
+                                    type="button"
+                                    data-date_id='{{ date.id }}' 
+                                    data-date='{{ date.date|date:"Y-m-d" }}' 
+                                    data-times='[ 
+                                    {% if date.at_lunch %}
+                                        "lunch",
+                                    {% endif %}
+                                    {% if date.at_dinner %}
+                                        "dinner"
+                                    {% endif %}
+                                    ]'>Remove</button>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -164,6 +183,7 @@
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_dates">
                 Add Date(s)
             </button>
+            <p> </p>
 
             <!-- pop up "Add date" part -->
             <div>
@@ -172,7 +192,7 @@
                     <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                        <h5 class="modal-title" id="add_datesLabel">Enter the special date(s)</h5>
+                        <h4 class="modal-title" id="add_datesLabel">Enter the special date(s)</h4>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -211,12 +231,16 @@
                                             <span class="weekday_display">{{ today|date:"l" }}</span>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td><h5>Opening times: </h5></td>
+                                        <td></td>
+                                    </tr>
                                     {{ date_form }}
                                 </table>
-                                <button class="btn btn-primary" type="submit">Add</button>
                             </form>
                         </div>
                         <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit">Add</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
@@ -224,14 +248,9 @@
                 </div>
             </div>
         </div>
-
-        <hr>
-
-        <div id="date-booking-conflits">
-                GERER LES CONFLITS UNE FOIS LES RESERVATIONS ENREGISTRABLES
-        </div>
-        
     </div>
 </section>
 
 <script src="{% static 'booking/date.js' %}"></script>
+
+{% endblock %}

@@ -144,8 +144,7 @@ def date_special(request):
         return HttpResponseRedirect(reverse("date_special"))
 
     else:
-        return  render(request, "booking/index.html", {
-            "date_tab": True,
+        return  render(request, "booking/date.html", {
             "weekdays": WeekDayOpened.objects.all(),
             "dates": DateSpecial.objects.filter(date__gte=datetime.today()),
             "date_form": DateForm(),
@@ -202,8 +201,8 @@ def weekday_update(request):
             #day_instance = WeekDayOpened.objects.get_or_create(weekday=day)
             #Use the above line (instead of the line above) if the database is empty
             day_instance = WeekDayOpened.objects.get(weekday=day)
-            day_instance.is_opened_lunch = weekdays[day]['lun']
-            day_instance.is_opened_dinner = weekdays[day]['din']
+            day_instance.at_lunch = weekdays[day]['lun']
+            day_instance.at_dinner = weekdays[day]['din']
             day_instance.save()
 
         return HttpResponseRedirect(reverse("date_special"))
@@ -238,7 +237,8 @@ def date_delete(request, date_id):
     date_to_delete = DateSpecial.objects.get(pk=date_id)
     delete_fct_return = date_to_delete.delete()
     if delete_fct_return[0] >= 1:
-        return HttpResponseRedirect(reverse("date_special"))
+        return HttpResponse(status=200)
+        #return HttpResponseRedirect(reverse("date_special"))
     else:
         return HttpResponse("The date hasn't been deleted", status=403)
 
@@ -252,12 +252,14 @@ def staff_delete(request, staff_id):
         return HttpResponse("The date hasn't been deleted", status=403)
 
 
+# Returns all the possibles bookings (from today to the next 31 days) regarding the criteria of search
 @login_required
 @csrf_exempt
 def booking_api(request):
     if request.method == 'POST':
         search_criteria = json.loads(request.body)
         
+        # Creating a list of checked areas and a list of checked table height, to use it in query filters
         area_list = []
         if search_criteria['area-ext']:
             area_list.append("EXT")
@@ -275,6 +277,7 @@ def booking_api(request):
             table_height_list.append("High")
 
 
+        # Set the start and the end of the period used to get the bookings
         start = date.today()
         end = start + timedelta(days=31)
 
@@ -285,58 +288,68 @@ def booking_api(request):
         weekdays = WeekDayOpened.objects.all()
 
         # 3/ get the possible tables regarding the criteria
-        possible_tables = Table.objects.filter(is_active=True).filter(is_joker=False).filter(area__in=area_list).filter(form_type__in=table_height_list).filter(capacity=int(search_criteria['capacity']))
+        criteria_tables = Table.objects.filter(is_active=True).filter(is_joker=False).filter(area__in=area_list).filter(form_type__in=table_height_list).filter(capacity=int(search_criteria['capacity']))
         if search_criteria['disabled-access']:
-            possible_tables = possible_tables.filter(is_for_disabled=True)
-        #print(possible_tables)
+            criteria_tables = criteria_tables.filter(is_for_disabled=True)
+        #print(criteria_tables)
 
         # 4/ get all the existing booking between start and end
-        impossible_dates = Booking.objects.filter(booking_date__range=(start, end))
-        print("IMPOSSIBLE", impossible_dates)
+        impossible_bookings = Booking.objects.filter(booking_date__range=(start, end))
+        #print("IMPOSSIBLE", impossible_bookings)
 
         # 5/ create a list that stores all possible dates between start to end
         possible_dates = []
         while start <= end:
+
+            day_openings = ''
+            ## Set day_openings regarding if date "start" is in special_dates or not (if not set it by its weekday)
             if start in special_dates.values_list('date', flat=True):
-                ## if start is a special date, add it according the special date opened times
-                d_day = special_dates.get(date=start)
-                if d_day.at_lunch == search_criteria['time-lunch'] or d_day.at_dinner == search_criteria['time-dinner']:
-                    possible_dates.append(
-                            {"date": start,
-                            "lunch": d_day.at_lunch,
-                            "dinner": d_day.at_dinner,
-                            "tables": list(possible_tables.values())
-                            }
-                    )
+                day_openings = special_dates.get(date=start)
             else:
-                ## get opened times regarding the weekdays 
                 # get the week day of the date "start"
                 start_day = start.strftime("%a").lower()
                 # get the opened time(s) of the date "start"
-                weekday = weekdays.filter(weekday=start_day)
-                # add the date + time, according to the weekdays opened times
-                if weekday[0].is_opened_lunch == search_criteria['time-lunch'] or weekday[0].is_opened_dinner == search_criteria['time-dinner']:
-                    possible_dates.append(
-                            {"date": start,
-                            "lunch": weekday[0].is_opened_lunch,
-                            "dinner":weekday[0].is_opened_dinner,
-                            "tables": list(possible_tables.values())
-                            }
-                    )
+                day_openings = weekdays.filter(weekday=start_day).first()
 
+            ## temp is use to keep track of free tables through the iterations
+            temp = {"date": start,
+                    "lunch": '',
+                    "dinner": ''
+                    }
+
+            ## A/ Get the free tables at lunch
+            if day_openings.at_lunch and search_criteria['time-lunch']:
+                free_tables = criteria_tables
+                day_impossible_bookings = impossible_bookings.filter(booking_date=start, booking_time='lunch')
+                for booked in day_impossible_bookings:
+                    
+                    if booked.table in free_tables:
+                        free_tables = free_tables.exclude(pk=booked.table.id)
+                temp['lunch'] = list(free_tables.values())
+
+            ## B/ Get the free tables at dinner
+            if day_openings.at_dinner and search_criteria['time-dinner']:
+                free_tables = criteria_tables
+                day_impossible_bookings = impossible_bookings.filter(booking_date=start, booking_time='dinner')
+                for booked in day_impossible_bookings:
+                    # If the existing booking has its table in the free_tables list, remove it from the list.
+                    if booked.table in free_tables:
+                        free_tables = free_tables.exclude(pk=booked.table.id)
+                temp['dinner'] = list(free_tables.values())
+
+            ## C/ Add temp in the possible_date list before iterating over the next date
+            possible_dates.append(temp)
+            
             start += timedelta(days=1)
 
         #print("POSSIBLE", possible_dates)
-        #### APRES AVOIR CREER DES BOOKINGS, RESTE A EXCLURE LES impossible_dates DE possible_dates, TABLE PAR TABLE
 
-
-        # NE RENVOYER QU UN JSON AVEC TABLES ET DATES
         return JsonResponse(possible_dates, safe=False)
-        #### APRES AVOIR CREER DES BOOKINGS, REVOIR SI possible_dates EST BIEN APPROPRIE
     else:
         return HttpResponseNotAllowed(['POST'])
 
 
+# Returns all booking for a specific date and time
 @login_required
 @csrf_exempt
 def get_booking(request):

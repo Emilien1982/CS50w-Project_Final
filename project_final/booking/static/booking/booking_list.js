@@ -4,27 +4,27 @@ const dinner_btns = document.getElementsByClassName('dinner');
 
 
 /* Modal elements */
+const modal_title = document.querySelector('#detailsModal h5');
 const modal_list = document.querySelector('#detailsModal tbody');
 
 
 /* Handle click on 'delete' btn */
 const handle_delete = event => {
-    console.log('HANDLE DELETE');
-        const booking_row = event.target.parentElement.parentElement;
-        const booking_id = event.target.dataset.booking_id;
-        const confirm = window.confirm("Are you sure to delete this booking?");
-        if (confirm) {
-            fetch(`/booking_delete/${booking_id}`)
-            .then(resp =>{
-                if (resp.status !== 200) {
-                    throw new Error("Booking has NOT been deleted");
-                }
-                else {
-                    booking_row.remove();
-                }
-            })
-            .catch(error => window.alert(error.message))
-        }
+    const booking_row = event.target.parentElement.parentElement;
+    const booking_id = event.target.dataset.booking_id;
+    const confirm = window.confirm("Are you sure to delete this booking?");
+    if (confirm) {
+        fetch(`/booking_delete/${booking_id}`)
+        .then(resp =>{
+            if (resp.status !== 200) {
+                throw new Error("Booking has NOT been deleted");
+            }
+            else {
+                booking_row.remove();
+            }
+        })
+        .catch(error => window.alert(error.message))
+    }
 }
 
 
@@ -66,9 +66,16 @@ const set_modal_listeners = () => {
 
 // Fetch the data then fill up the modal
 const fillUp_modal = async (date, time) => {
+    // Display date and time in the modal title
+    const date_obj = new Date(date);
+    const date_format = {
+        weekday: "long",
+        month: "short",
+        day: "2-digit"
+    }
+    modal_title.innerText = `${date_obj.toLocaleDateString('en-US', date_format)}   ---   ${time}`;
     // Make sure the list is empty before filling it up
     modal_list.innerHTML = ''
-
     // Get all the bookings for the seleted date and time
     const data = {
         'date': date,

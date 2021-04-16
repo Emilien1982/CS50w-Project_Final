@@ -64,7 +64,7 @@
                         <label for="dewey">Lunch - arrival: 12:00 - 12:30 </label>
                     </div>
                     <div>
-                        <input type="radio" name="time2" value="diner">
+                        <input type="radio" name="time2" value="dinner">
                         <label for="dewey">Diner - arrival: 19:30 - 20:00</label>
                     </div>
 
@@ -113,10 +113,6 @@
             <!-- TABLE PAGE -->
             {% if table_tab %}
                 {% include "booking/table.html" %}
-            {% endif %}
-            <!-- DATE PAGE -->
-            {% if date_tab %}
-                {% include "booking/date.html" %}
             {% endif %}
             <!-- STAFF PAGE -->
             {% if staff_tab %}
