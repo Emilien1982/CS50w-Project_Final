@@ -9,7 +9,7 @@ const reference_checker = (input, alert, submit, forbidden_references) => {
     input.style.background = "white";
     alert.style.opacity = "0";
     for (reference of forbidden_references) {
-        if (input.value === reference) {
+        if (input.value.toLowerCase() === reference.toLowerCase()) {
             submit.setAttribute("disabled", "");
             input.style.background = "#F8D7DA";
             alert.innerText = `${reference} is already used on an existing table.`;

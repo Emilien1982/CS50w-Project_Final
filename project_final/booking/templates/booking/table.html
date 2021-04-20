@@ -1,39 +1,57 @@
+{% extends "booking/layout.html" %}
 {% load static %}
 
+{% block body %}
+
 <section id="table">
-    <div class="container">
+    <div class="container-sm">
 
         <div id="existing-tables">
-            <h2>Existing tables</h2>
-            <table data-tables_data="{{ tables_data }}">
+            <div class="d-flex justify-content-between mb-2">
+                <h2>Existing tables</h2>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                    Add Table
+                </button>
+            </div>
+            <table data-tables_data="{{ tables_data }}" class="table table-light">
                 {% regroup tables by get_area_display as area_list %}
                 {% for area,tables_in_area in area_list %}
-                    <tr><th colspan="2">{{ area }}</th><td></td><td></td></tr>
+                    <tr><th colspan="2"><h4>{{ area }}</h4></th><td></td></tr>
                     {% for table in tables_in_area %}
                         <tr>
-                            <th></th>
                             <td><button type="button" class="btn btn-sm btn-warning edit-table" data-table_id="{{ table.id }}" data-bs-toggle="modal" data-bs-target="#edit_section">Edit</button></td>
                             <td class="center-cell">{{ table }}</td>
-                            <td><button type="button" class="btn btn-sm btn-warning delete-table" data-table_id="{{ table.id }}" data-table_ref="{{ table.reference }}" data-bs-toggle="modal" data-bs-target="#delete_confirmation">Delete</button></td>
+                            <td><button type="button" class="btn btn-sm btn-danger delete-table" data-table_id="{{ table.id }}" data-table_ref="{{ table.reference }}" data-bs-toggle="modal" data-bs-target="#delete_confirmation">Delete</button></td>
                         </tr>
                     {% endfor %}
                 {% endfor %}
             </table>
         </div>
         
-        <hr>
-
-        <div id="create-table">
-            <h2>Create tables</h2>
-
-            <div id="create-reference-alert" class="alert alert-danger" role="alert"></div>
-            <form action="{% url 'table' %}" method="POST">
-                {% csrf_token %}
-                <table>
-                    {{ table_form.as_table }}
-                </table>
-                <input type="submit" value="Create table">
-            </form>
+        <!-- Modal For Creating Table -->
+        <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Create new table</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="create-table" class="modal-body">
+                    <div id="create-reference-alert" class="alert alert-danger" role="alert">
+                    </div>
+                    <form action="{% url 'table' %}" method="POST">
+                        {% csrf_token %}
+                        <table class="table table-light">
+                            {{ table_form.as_table }}
+                        </table>
+                        <input type="submit" class="btn btn-primary" value="Create table">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+            </div>
         </div>
 
         <!-- Modal For Editing Table -->
@@ -48,10 +66,10 @@
                         <div id="reference-alert" class="alert alert-danger" role="alert"></div>
                         <form action="" method="POST">
                             {% csrf_token %}
-                            <table>
+                            <table class="table table-light">
                                 {{ table_form.as_table }}
                             </table>
-                            <input  type="submit" value="Update table">
+                            <input class="btn btn-primary" type="submit" value="Update table">
                         </form>
                     </div>
                 </div>
@@ -79,3 +97,5 @@
 </section>
 
 <script src="{% static 'booking/table.js' %}"></script>
+
+{% endblock %}

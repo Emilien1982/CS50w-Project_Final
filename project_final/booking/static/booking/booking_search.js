@@ -46,12 +46,15 @@ const display_dates = (dates) => {
     current_month = ""
     // set the heading row
     dates_list.innerHTML = `
-    <tr>
-        <td></td>
-        <td colspan="2">Date</td>
-        <td>Lunch</td>
-        <td>Dinner</td>
-    </tr>`;
+    <thead>
+        <tr>
+            <th></th>
+            <th colspan="2">Date</th>
+            <th>Lunch</th>
+            <th>Dinner</th>
+        </tr>
+    </thead>
+    <tbody>`;
     // set every date in a new row
     for (const date_item of dates) {
         const day = new Intl.DateTimeFormat('en-US', { weekday: 'short'}).format(Date.parse(date_item.date));
@@ -103,6 +106,7 @@ const display_dates = (dates) => {
         ////////// add the row to the results
         dates_list.appendChild(date_row);
     }
+    dates_list.innerHTML += '</tbody>';
 }
 
 

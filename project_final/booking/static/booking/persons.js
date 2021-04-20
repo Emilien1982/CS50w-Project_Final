@@ -11,6 +11,13 @@ const modal_alert = document.getElementById('modal_alert');
 const close_btn = document.getElementById('close_btn');
 const save_updates_btn = document.getElementById('save_client_updates_btn');
 
+
+// Disabled the autocomplete on the text inputs
+for (const input of inputs_search) {
+    input.setAttribute('autocomplete', 'off');
+}
+
+
 // Create a dict with all inputs'data
 const inputs_iterator = (inputs) => {
     let dict = {};

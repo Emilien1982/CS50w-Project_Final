@@ -3,13 +3,18 @@
 
 {% block body %}
 <section id="extra-date">
-    <div class="container">
-
+    <div class="container-sm">
         <div id="opened-weekdays">
             <!-- Visible part -->
             <div>
-                <h2>The restaurant is opened on:</h2>
-                <table>
+                <div class="d-flex justify-content-between mb-2">
+                    <h2>The restaurant is opened on:</h2>
+                    <!-- Button trigger modal -->
+                    <button type="button" id="change-wdays-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#weekdays_edit">
+                        Change
+                    </button>
+                </div>
+                <table class="table table-light">
                     <thead>
                         <tr>
                             <th></th>
@@ -27,10 +32,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <!-- Button trigger modal -->
-                <button type="button" id="change-wdays-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#weekdays_edit">
-                    Change
-                </button>
             </div>
             <!-- Pop up MODAL "Change" part -->
             <div class="modal fade" id="weekdays_edit" tabindex="-1" aria-labelledby="weekdays_editLabel" aria-hidden="true">
@@ -43,7 +44,7 @@
                     <div class="modal-body">
                         <form action="/weekday_update" method="POST" data-existing_days="{{ weekdays }}">
                             {% csrf_token %}
-                            <table>
+                            <table class="table table-light">
                                 <thead>
                                     <tr>
                                         <th></th>
@@ -52,7 +53,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- SUPPRIMER LE ID CI DESSOUS SI NON UTILISE -->
                                     <tr id="monday">
                                         <th>Monday</th>
                                         <th><input class="lunch" type="checkbox" name="mon-lun"
@@ -139,7 +139,13 @@
             </div>
             <!-- visible part -->
             <div>
-                <h2>Special dates list</h2>
+                <div class="d-flex justify-content-between mb-2">
+                    <h2>Special dates list</h2>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_dates">
+                        Add Date(s)
+                    </button>
+                </div>
+                
                 <table class="table table-light">
                     <thead>
                         <tr>
@@ -162,7 +168,7 @@
                                 <td>
                                     {% if date.at_dinner %} ✔️ {% else %} - {% endif %}
                                 </td>
-                                <td><button class="btn btn-sm btn-primary date_delete"
+                                <td><button class="btn btn-sm btn-danger date_delete"
                                     type="button"
                                     data-date_id='{{ date.id }}' 
                                     data-date='{{ date.date|date:"Y-m-d" }}' 
@@ -180,71 +186,65 @@
                     </tbody>
                 </table>
             </div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add_dates">
-                Add Date(s)
-            </button>
+            
             <p> </p>
 
-            <!-- pop up "Add date" part -->
-            <div>
-                <!-- Modal -->
-                <div class="modal fade" id="add_dates" tabindex="-1" aria-labelledby="add_datesLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                        <h4 class="modal-title" id="add_datesLabel">Enter the special date(s)</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form action="/date_special" method="POST">
-                                {% csrf_token %}
-                                <table>
-                                    <tr>
-                                        <td colspan="2">
-                                            <ul>
-                                                <li><label for="single_day">
-                                                    <input type="radio" name="period" value="no" id="single_day" class="period_radio" checked>
-                                                    Single day</label>
-                                                </li>
-                                                    <li><label for="period">
-                                                    <input type="radio" name="period" value="yes" id="period" class="period_radio">
-                                                    Period</label>
-                                                </li>
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <label for="date" id="date_label">Date</label>
-                                        </td>
-                                        <td>
-                                            <input type="date" id="date" name="date" value="{{ today|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}">
-                                            <span class="weekday_display">{{ today|date:"l" }}</span>
-                                        </td>
-                                    </tr>
-                                    <tr id="date_end_row">
-                                        <td>
-                                            <label for="date_end" id="date_end_label">To</label>
-                                        </td>
-                                        <td>
-                                            <input type="date" id="date_end" name="date_end" value="{{ today|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}">
-                                            <span class="weekday_display">{{ today|date:"l" }}</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><h5>Opening times: </h5></td>
-                                        <td></td>
-                                    </tr>
-                                    {{ date_form }}
-                                </table>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                        <button class="btn btn-primary" type="submit">Add</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        </div>
+            <!-- pop up MODAL  "Add date" part -->
+            <div class="modal fade" id="add_dates" tabindex="-1" aria-labelledby="add_datesLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h4 class="modal-title" id="add_datesLabel">Enter the special date(s)</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+                    <div class="modal-body d-flex justify-content-center">
+                        <form action="/date_special" method="POST">
+                            {% csrf_token %}
+                            <table>
+                                <tr>
+                                    <td colspan="2" class="text-start">
+                                        <ul>
+                                            <li><label for="single_day">
+                                                <input type="radio" name="period" value="no" id="single_day" class="period_radio" checked>
+                                                Single day</label>
+                                            </li>
+                                                <li><label for="period">
+                                                <input type="radio" name="period" value="yes" id="period" class="period_radio">
+                                                Period</label>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <label for="date" id="date_label">Date</label>
+                                    </td>
+                                    <td>
+                                        <input type="date" id="date" name="date" value="{{ today|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}">
+                                        <span class="weekday_display">{{ today|date:"l" }}</span>
+                                    </td>
+                                </tr>
+                                <tr id="date_end_row">
+                                    <td>
+                                        <label for="date_end" id="date_end_label">To</label>
+                                    </td>
+                                    <td>
+                                        <input type="date" id="date_end" name="date_end" value="{{ today|date:'Y-m-d' }}" min="{{ today|date:'Y-m-d' }}">
+                                        <span class="weekday_display">{{ today|date:"l" }}</span>
+                                    </td>
+                                </tr>
+                                <tr class='mt-2'>
+                                    <td colspan="2" class="text-start"><h5>Opening times: </h5></td>
+                                </tr>
+                                {{ date_form }}
+                            </table>
+                        </form>
                     </div>
+                    <div class="modal-footer">
+                    <button class="btn btn-primary" type="submit">Add</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
                 </div>
             </div>
         </div>

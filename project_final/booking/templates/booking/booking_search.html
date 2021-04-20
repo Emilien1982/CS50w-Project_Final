@@ -1,12 +1,15 @@
+{% extends "booking/layout.html" %}
 {% load static %}
 
+{% block body %}
+
 <section id="booking_search">
-    <div class="container">
+    <div class="container-sm">
         <div id="search-inputs">
             <h2>Select the criteria you want:</h2>
             <div class="alert alert-danger" id="alert-message" role="alert"></div>
             <form>
-                <table>
+                <table class="table table-light">
                     <tr>
                         <td>
                             <label for="capacity">How many persons: </label>
@@ -38,9 +41,9 @@
                         <td>
                             <label for="table-low">Low</label>
                             <input name="table-low" id="table-low" type="checkbox" checked>
-                            <label for="table-std">Standard</label>
+                            <label for="table-std" class="ms-2">Standard</label>
                             <input name="table-std" id="table-std" type="checkbox" checked>
-                            <label for="table-high">High</label>
+                            <label for="table-high" class="ms-2">High</label>
                             <input name="table-high" id="table-high" type="checkbox" checked>
                         </td>
                     </tr>
@@ -51,9 +54,9 @@
                         <td>
                             <label for="area-ext">Exterior</label>
                             <input name="area-ext" id="area-ext" type="checkbox" checked>
-                            <label for="area-mai">Main Room</label>
+                            <label for="area-mai" class="ms-2">Main Room</label>
                             <input name="area-mai" id="area-mai" type="checkbox" checked>
-                            <label for="area-up">Up-stair</label>
+                            <label for="area-up" class="ms-2">Up-stair</label>
                             <input name="area-up" id="area-up" type="checkbox" checked>
                         </td>
                     </tr>
@@ -64,7 +67,7 @@
                         <td>
                             <label for="time-lunch">Lunch</label>
                             <input name="time-lunch" id="time-lunch" type="checkbox" checked>
-                            <label for="time-dinner">Dinner</label>
+                            <label for="time-dinner" class="ms-2">Dinner</label>
                             <input name="time-dinner" id="time-dinner" type="checkbox" checked>
                         </td>
                     </tr>
@@ -74,7 +77,7 @@
         <hr>
         <div id="search-results">
             <h2>Availble dates with your criteria:</h2>
-            <table id="dates-list">
+            <table id="dates-list" class="table bg-green">
             </table>
         </div>
         <!-- MODAL FOR BOOKING DETAILS -->
@@ -178,3 +181,5 @@
 </div>
 
 <script src="{% static 'booking/booking_search.js' %}"></script>
+
+{% endblock %}

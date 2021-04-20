@@ -4,15 +4,18 @@
 {% block body %}
 
 <section id="person">
-    <div class="container">
+    <div class="container-sm">
         <div id="page_alert" class="d-none" role="alert">
         </div>
         <div id="search-clients">
             <h2>Select the criteria you want:</h2>
-            <table>
+            <table autocomplete='off' class="table table-light">
                 {{ client_form.as_table }}
             </table>
-            <button id="search_btn" type="button" class="btn btn-primary">Search</button>
+            <div class="d-flex justify-content-end">
+                <button id="search_btn" type="button" class="btn btn-primary">Search</button>
+            </div>
+            
         </div>
         <hr>
         <div id="results-clients">
@@ -36,7 +39,7 @@
         <div id="modal_alert" class="d-none" role="alert">
         </div>
         <div class="modal-body">
-            <table>
+            <table class="table table-light">
                 <!-- can't use { client_form } again as it duplicates inputs with the same id -->
                 <tbody>
                     <tr>

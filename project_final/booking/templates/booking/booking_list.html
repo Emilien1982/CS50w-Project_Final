@@ -4,10 +4,12 @@
 {% block body %}
 
 <section id="booking_list">
-    <div class="container">
+    <div class="container-sm">
+        <div id="booking-conflits" class="d-none">
+        </div>
         <div id="list">
-            <h2>Click on the date and time you want:</h2>
-            <table>
+            <h2>Click on buttons for details:</h2>
+            <table class="table bg-green">
                 <thead>
                     <th>
 
@@ -26,15 +28,15 @@
                 <tbody>
                     {% for week, week_dates in list_by_week %}
                     <tr>
-                        <td>Week {{ week }}</td>
-                        <td colspan="3">---------------------------------</td>
+                        <th class="px-0">Week {{ week }}</th>
+                        <td colspan="3"></td>
                     </tr>
                     {% for date in week_dates %}
                     <tr>
                         <td>
 
                         </td>
-                        <td>
+                        <td  class="px-0">
                             {{ date.date|date:"M j - D" }}
                         </td>
                         <td>
@@ -62,7 +64,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <table>
+                    <table class='table table-striped'>
                         <thead>
                             <tr>
                                 <th></th>
@@ -70,8 +72,8 @@
                                 <th>Table</th>
                                 <th>Client</th>
                                 <th>Phone</th>
-                                <th>Booked by</th>
-                                <th>Note</th>
+                                <th class="optional-data">Booked by</th>
+                                <th class="optional-data">Note</th>
                                 <th></th>
                             </tr>
                         </thead>

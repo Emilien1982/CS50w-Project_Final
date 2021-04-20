@@ -2,123 +2,115 @@
 {% load static %}
 
 {% block body %}
-<!-- ###### LAMBDA USER ####### -->
-    {% if not user.is_authenticated %}
-        <section id="presentation">
-            <div class="container">
-                <div id="block-logo">
-                    <img src="{% static 'booking/logo.png' %}" alt="restaurant logo">
-                </div>
-                <div id="block-opening">
-                    <h2>Opening hours</h2>
-                    <table class="table table-sm">
-                        <thead>
-                            <tr><th>Days</th><th>Lunch</th><th>Dinner</th></tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>Mon - Tue</td><td>closed</td><td>closed</td></tr>
-                            <tr><td>Wed - Thu</td><td>11:00 - 14:00</td><td>19:00 - 22:30</td></tr>
-                            <tr><td>Fri - Sat</td><td>11:00 - 15:00</td><td>18:30 - 23:30</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+
+<section id="presentation">
+    <div class="container">
+        <div id="block-logo">
+            <img src="{% static 'booking/logo.png' %}" alt="restaurant logo">
+        </div>
+        <div id="block-opening">
+            <h2>Opening hours</h2>
+            <table class="table table-sm">
+                <thead>
+                    <tr><th>Days</th><th>Lunch</th><th>Dinner</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Mon - Tue</td><td>closed</td><td>closed</td></tr>
+                    <tr><td>Wed - Thu</td><td>11:00 - 14:00</td><td>19:00 - 22:30</td></tr>
+                    <tr><td>Fri - Sat</td><td>11:00 - 15:00</td><td>18:30 - 23:30</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+<section id="available">
+    <div class="container">
+        <h2 class="d-flex justify-content-center">Available tables</h2>
+        <div>
+            <strong> - All booking must be made by phone - </strong>
+        </div>
+        <div class="d-flex justify-content-evenly flex-column flex-sm-row mt-4">
+            <div id="block-available1" class="available flex-shrink-0 mx-auto">
+                <h3>Find the next availability:</h3>
+                <label for="capacity-select1" class="mb-2">How many persons: 
+                    <select id="capacity-select1">
+                        <option value="2">1 or 2</option>
+                        <option value="4">3 or 4</option>
+                        <option value="6">5 or 6</option>
+                        <option value="8">7 or 8</option>
+                        <option value="100">more than 8</option>
+                    </select>
+                </label>
+                <br>
+                <button id='get-first' class="btn btn-primary">Find</button>
             </div>
-        </section>
-        <section id="available">
-            <div class="container">
-                <h2>Available tables</h2>
-                <div>
-                    <strong> - All booking must be made by phone - </strong>
-                </div>
-                <div id="block-available1" class="available">
-                    <h3>Find the next availability:</h3>
-                    <label for="capacity-select1">How many persons: 
-                        <select id="capacity-select1">
-                            <option value="12">1 or 2</option>
-                            <option value="33">3 or 4</option>
-                            <option value="56">5 or 6</option>
-                            <option value="78">7 or 8</option>
-                            <option value="8-plus">more than 8</option>
-                        </select>
-                    </label>
-                    <button id="btn-available1">Find</button>
-                    <div class="available1-result">
-                    </div>
-                </div>
-                <div>OR</div>
-                <div id="block-available2" class="available">
-                    <h3>Check your date 📅:</h3>
+            <div class="flex-shrink-0 text-center p-3">OR</div>
+            <div id="block-available2" class="available flex-shrink-0 mx-auto">
+                <h3>Check your date <span class='ps-3'>📅</span> :</h3>
+                <div class="mb-2">
                     <label for="capacity-select2">How many persons: 
                         <select id="capacity-select2">
-                            <option value="12">1 or 2</option>
-                            <option value="33">3 or 4</option>
-                            <option value="56">5 or 6</option>
-                            <option value="78">7 or 8</option>
-                            <option value="8-plus">more than 8</option>
+                            <option value="2">1 or 2</option>
+                            <option value="4">3 or 4</option>
+                            <option value="6">5 or 6</option>
+                            <option value="8">7 or 8</option>
+                            <option value="100">more than 8</option>
                         </select>
                     </label>
-
-                    <p>Select your time:</p>
+                </div>
+                
+                <div class="mb-2">
+                    <label>Select your time:</label>
                     <div>
-                        <input type="radio" name="time2" value="lunch">
-                        <label for="dewey">Lunch - arrival: 12:00 - 12:30 </label>
+                        <input id="radio-lunch" type="radio" name="time2" value="lunch" checked>
+                        <label for="radio-lunch">Lunch - arrival: 12:00 - 12:30 </label>
                     </div>
                     <div>
-                        <input type="radio" name="time2" value="dinner">
-                        <label for="dewey">Diner - arrival: 19:30 - 20:00</label>
+                        <input id="radio-dinner" type="radio" name="time2" value="dinner">
+                        <label for="radio-dinner">Diner - arrival: 19:30 - 20:00</label>
                     </div>
-
+                </div>
+                
+                <div class="mb-2">
                     <label for="date-select2">Select your date:</label>
                     <!-- Créer une alternative pour safari qui ne supporte pas input type="date" -->
                     <input type="date" id="date-select2" name="date-select2"
                         value="{{ today|date:'Y-m-d' }}"
                         min="{{ today|date:'Y-m-d' }}" max="{{ booking_end|date:'Y-m-d' }}">
-                    <button id="btn-available2">Find</button>
-                    <div class="available2-result">
-                    </div>
+                    <br>
                 </div>
+                <button id='check-date' class="btn btn-primary">Find</button>
             </div>
-        </section>
-        <section id="contact">
-            <div class="container">
-                <h2>Contacts</h2>
-                <div>
-                    ☎️ (555) 495-1000 
-                </div>
-                <div>
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2947.38206154593!2d-71.11884878462557!3d42.37700684202392!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89e377427d7f0199%3A0x5937c65cee2427f0!2sUniversit%C3%A9%20Harvard!5e0!3m2!1sfr!2sfr!4v1616689974188!5m2!1sfr!2sfr" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                </div>
-                <div>
-                    Harvard University
-                    Massachusetts Hall
-                    Cambridge, MA 02138
-                </div>
+        </div>
+    </div>
+</section>
+<section>
+    <div class="container">
+        <div id="search-results" class="d-none">
+
+        </div>
+    </div>
+</section>
+<section id="contact">
+    <div class="container">
+        <h2 class="d-flex justify-content-center">Contacts</h2>
+        <div class='d-flex justify-content-between flex-wrap'>
+            <div class="mb-3 fs-2">
+                ☎️ (555) 495-1000 
             </div>
-        </section>
-    {% endif %}
+            <div class="mb-3">
+                Harvard University <br>
+                Massachusetts Hall <br>
+                Cambridge, MA 02138 <br>
+            </div>
+        </div>
 
-    <!-- ###### STAFF & MAMAGER USER ####### -->
-    {% if user.is_authenticated %}
-        {% if book_search_tab %}
-            {% include "booking/booking_search.html" %}
-        {% endif %}
+        <div class="mb-3">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2947.38206154593!2d-71.11884878462557!3d42.37700684202392!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89e377427d7f0199%3A0x5937c65cee2427f0!2sUniversit%C3%A9%20Harvard!5e0!3m2!1sfr!2sfr!4v1616689974188!5m2!1sfr!2sfr" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+    </div>
+</section>
 
-        {% if person_tab %}
-            {% include "booking/persons.html" %}
-        {% endif %}
-        
-        <!-- ###### ONLY MAMAGER USER ####### -->
-
-        {% if  user.groups.all.0.name == "manager" %}
-            <!-- TABLE PAGE -->
-            {% if table_tab %}
-                {% include "booking/table.html" %}
-            {% endif %}
-            <!-- STAFF PAGE -->
-            {% if staff_tab %}
-                {% include "booking/staff.html" %}
-            {% endif %}
-        {% endif %}
-    {% endif %}
+<script src="{% static 'booking/index.js' %}"></script>
 
 {% endblock %}

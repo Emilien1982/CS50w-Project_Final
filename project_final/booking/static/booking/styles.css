@@ -13,11 +13,14 @@ body {
 }
 
 section {
-    padding-top: var(--navbar-height);
-}
+    margin-bottom: 3.5rem;
+    /* padding-top: var(--navbar-height);*/
+} 
+
 
 .container {
     width: 90%;
+    max-width: 900px;
 }
 
 .navbar-expand {
@@ -32,13 +35,20 @@ section {
     height: 5vh;
 }
 
-#presentation {
-    height: 100vh;
+/* Used in table of search results */
+.bg-green {
+    background-color: #E2E986;
 }
+
+.dropdown-menu[data-bs-popper] {
+    left: auto;
+    right: 0;
+}
+
 
 #block-logo img {
     width: 100%;
-    margin: 3rem auto;
+    margin: 3vw auto;
 }
 
 strong {
@@ -54,13 +64,22 @@ table {
     text-align: center;
 }
 
+@media (max-width: 500px) {
+    .optional-data {
+        display: none;
+    }
+}
+
+
+textarea {
+    min-width: 215px;
+    width: max-content;
+}
+
 thead {
     border-bottom: 2px solid black;
 }
 
-.available {
-    margin: 2rem auto;
-}
 
 iframe {
     width: 100%;
@@ -70,16 +89,12 @@ iframe {
 .non-active {
     text-decoration-line: line-through;
 }
+/* Redifining Bootstrap */
+.container-sm {
+    max-width: 350px;
+}
 
 /* TABLES MANAGEMENT PAGE */
-.edit-table, .delete-table {
-    color:rgb(27, 126, 32);
-}
-
-.edit-table:hover, .delete-table:hover {
-    cursor: pointer;
-    color:hotpink;
-}
 
 .hidden {
     display: none;
@@ -93,16 +108,10 @@ iframe {
     width: 4em;
 }
 
-#existing-tables button {
-    font-size: 0.7rem;
-    padding: 0;
-    width: 4em;
-}
 
 .center-cell {
-    width: 10em;
-    /* padding: 0 4em; */
-}
+    font-family: Arial, Helvetica, sans-serif;
+    }
 
 .alert-danger {
     opacity: 0;

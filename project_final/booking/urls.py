@@ -24,6 +24,7 @@ urlpatterns = [
     path('get_booking', views.get_booking),
     path('booking_delete/<int:booking_id>', views.booking_delete),
     path('booking_honored/<int:booking_id>', views.booking_honored),
+    path('booking_conflits', views.booking_conflits),
     path('client_api', views.client_api, name="client_api"),
     path('easy_client/<str:feature>', views.easy_client_api),
     path('client_update_api', views.client_update_api),

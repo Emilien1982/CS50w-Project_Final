@@ -13,7 +13,7 @@ for (const edit_btn of edit_btns) {
 
         /* Catch the existing data on the staff */
         const staff_position = staff_row.dataset.staff_position;
-        const staff_is_active = staff_row.dataset.staff_is_active;
+        const staff_is_active = staff_row.dataset.staff_is_active.toLowerCase() === 'true'? true : false;
         const staff_firstName = staff_row.querySelector("span[class='staff_first_name']").innerText;
         const staff_lastName = staff_row.querySelector("span[class='staff_last_name']").innerText;
         const staff_shortName = staff_row.querySelector("td[class='staff_short_name']").innerText;
@@ -23,8 +23,9 @@ for (const edit_btn of edit_btns) {
         edit_section.querySelector('input[name="last_name"]').value = staff_lastName;
         edit_section.querySelector('input[name="short_name"]').value = staff_shortName;
         edit_section.querySelector('select[name="position"]').value = staff_position;
-        if (staff_is_active == 'False') {
-            // by default the is_active checkbox is checked, just need to uncheck it if unactive
+        if (staff_is_active) {
+            edit_section.querySelector('input[name="is_active"]').setAttribute("checked",'');
+        } else {
             edit_section.querySelector('input[name="is_active"]').removeAttribute("checked");
         }
 

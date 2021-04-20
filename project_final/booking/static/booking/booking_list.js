@@ -1,6 +1,7 @@
 /* Page elements */
 const lunch_btns = document.getElementsByClassName('lunch');
 const dinner_btns = document.getElementsByClassName('dinner');
+const booking_conflits = document.getElementById('booking-conflits');
 
 
 /* Modal elements */
@@ -92,7 +93,7 @@ const fillUp_modal = async (date, time) => {
 
         new_row.innerHTML = `
         <td>
-        <button type="button" class="btn btn-sm btn-danger delete_booking" data-booking_id="${booking.id}">Delete</button>
+        <button type="button" class="btn btn-sm btn-danger delete_booking" data-booking_id="${booking.id}">Del<span class='optional-data'>ete</span></button>
         </td>
         `
         if (booking.is_wanted_table) {
@@ -104,10 +105,10 @@ const fillUp_modal = async (date, time) => {
         <td>${booking.table_reference}</td>
         <td>${booking.client_name}</td>
         <td>${booking.client_tel}</td>
-        <td>${booking.creator_short_name}</td>
-        <td>${booking.note}</td>
+        <td class="optional-data">${booking.creator_short_name}</td>
+        <td class="optional-data">${booking.note}</td>
         <td>
-        <button type="button" class="btn btn-sm btn-primary honored_booking" data-booking_id="${booking.id}">Honored</button>
+        <button type="button" class="btn btn-sm btn-primary honored_booking" data-booking_id="${booking.id}">Hon<span class='optional-data'>ored</span></button>
         </td>
         `;
         // Set line-throuh if the booking has been honored already
@@ -133,3 +134,49 @@ for (const btn of dinner_btns) {
         fillUp_modal(date, 'dinner');
     })
 }
+
+/* Get all booking conflits: made on closing times */
+const get_conflits = async () => {
+    booking_conflits.innerHTML = '<h2>Bookings on closed time:</h2>';
+    const conflits = await fetch('booking_conflits'
+    )
+    .then(resp => resp.json())
+    if (conflits.length > 0) {
+        const tab = document.createElement('table');
+        tab.setAttribute('class', 'table table-danger');
+        tab.innerHTML += `<thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Table</th>
+                                <th>Client</th>
+                                <th>Phone</th>
+                            </tr>
+                        </thead>`;
+        const tbody = document.createElement('tbody');
+        tab.appendChild(tbody);
+        for (const conflit of conflits) {
+            const booking = conflit['booking'];
+            const client = conflit['client'];
+            const table = conflit['table']
+                    tbody.innerHTML +=
+                        `<tr>
+                            <td>${booking.booking_date}</td>
+                            <td>${booking.booking_time}</td>
+                            <td>${table}</td>
+                            <td>${client.name}</td>
+                            <td>${client.phone}</td>
+                        </tr>`;
+                }
+        booking_conflits.appendChild(tab);
+        booking_conflits.removeAttribute('class');
+    }
+}
+
+/* Get clonflits when Content is loaded and after a booking is deleted */
+document.addEventListener('DOMContentLoaded', get_conflits);
+
+const delete_btns = document.getElementsByClassName('delete_booking');
+    for (const btn of delete_btns) {
+        btn.addEventListener('click', get_conflits);
+    }

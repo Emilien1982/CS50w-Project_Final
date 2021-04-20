@@ -41,12 +41,11 @@ def logout_view(request):
 def index(request):
     return render(request, "booking/index.html", {
         "today": datetime.today(),
-        "booking_end": datetime.today() + timedelta(days=62)
+        "booking_end": datetime.today() + timedelta(days=31)
     })
 
 def booking_search(request):
-    return render(request, "booking/index.html", {
-        "book_search_tab": True,
+    return render(request, "booking/booking_search.html", {
         "staffActive": Staff.objects.filter(is_active=True)
     })
 
@@ -94,8 +93,7 @@ def table(request):
         tables = Table.objects.all().order_by('area', 'reference')
         table_form = TableForm()
 
-        return render(request, "booking/index.html", {
-            "table_tab": True,
+        return render(request, "booking/table.html", {
             "tables": tables,
             "table_form": table_form,
             # pass tables data as JSON format for javascript usage (when editing table for example)
@@ -105,7 +103,6 @@ def table(request):
 
 def person(request):
     return render(request, "booking/persons.html", {
-        "person_tab": True,
         "client_form": ClientForm()
     })
 
@@ -165,8 +162,7 @@ def staff(request):
         else:
             return HttpResponse('Something gone wrong with the submited staff', status=403)
     else:
-        return render(request, "booking/index.html", {
-            "staff_tab": True,
+        return render(request, "booking/staff.html", {
             "staffs": Staff.objects.all().order_by('position', 'last_name'),
             "staff_form": StaffForm()
         })
@@ -258,7 +254,7 @@ def staff_delete(request, staff_id):
 def booking_api(request):
     if request.method == 'POST':
         search_criteria = json.loads(request.body)
-        
+
         # Creating a list of checked areas and a list of checked table height, to use it in query filters
         area_list = []
         if search_criteria['area-ext']:
@@ -275,7 +271,6 @@ def booking_api(request):
             table_height_list.append("Standard")
         if search_criteria['table-high']:
             table_height_list.append("High")
-
 
         # Set the start and the end of the period used to get the bookings
         start = date.today()
@@ -322,7 +317,6 @@ def booking_api(request):
                 free_tables = criteria_tables
                 day_impossible_bookings = impossible_bookings.filter(booking_date=start, booking_time='lunch')
                 for booked in day_impossible_bookings:
-                    
                     if booked.table in free_tables:
                         free_tables = free_tables.exclude(pk=booked.table.id)
                 temp['lunch'] = list(free_tables.values())
@@ -338,18 +332,72 @@ def booking_api(request):
                 temp['dinner'] = list(free_tables.values())
 
             ## C/ Add temp in the possible_date list before iterating over the next date
-            possible_dates.append(temp)
+            if temp['lunch'] != '' or temp['dinner'] != '':
+                possible_dates.append(temp)
             
             start += timedelta(days=1)
 
         #print("POSSIBLE", possible_dates)
-
+        
         return JsonResponse(possible_dates, safe=False)
     else:
         return HttpResponseNotAllowed(['POST'])
 
 
-# Returns all booking for a specific date and time
+# Returns all bookings that exist on non opened times
+@login_required
+@csrf_exempt
+def booking_conflits(request):
+    today = date.today()
+
+    bookings = Booking.objects.filter(booking_date__gte=today).select_related('client', 'table')
+    bookings_list = bookings.values()
+
+    special_dates = DateSpecial.objects.filter(date__gte=today)
+    special_dates_list = special_dates.values_list('date', flat=True)
+    
+    weekdays = WeekDayOpened.objects.all()
+    conflits_list = []
+
+    for booking in bookings_list:
+        d_day = booking['booking_date']
+        client = bookings.get(pk=booking['id']).client
+        table = bookings.get(pk=booking['id']).table
+
+        # 1 - Get the d_day opening times by the special_dates query or the weekdays query
+        #     Thanks WeekDayOpened and DateSpecial models have the same structure
+        d_day_info = ''
+        if d_day in special_dates_list:
+            d_day_info = special_dates.get(date=d_day)
+        else:
+            d_day_info = weekdays.get(weekday=d_day.strftime("%a").lower())
+
+        # 2 - Make a list of opening times out of the d_day_info
+        d_day_opening_times = []
+        if d_day_info.at_lunch:
+            d_day_opening_times.append('lunch')
+        if d_day_info.at_dinner:
+            d_day_opening_times.append('dinner')
+        
+        # 3 - Booking is on closing time
+        if not booking['booking_time'] in d_day_opening_times:
+            client_data = {
+                'name': f'{client.first_name} {client.last_name}',
+                'phone': client.tel
+            }
+
+            data = {
+                'booking': booking,
+                'client': client_data,
+                'table': table.reference
+            } 
+            #print('DATA: ', data)
+            conflits_list.append(data)
+
+    return JsonResponse(conflits_list, safe=False)
+
+
+# Returns all bookings for a specific date and time
 @login_required
 @csrf_exempt
 def get_booking(request):
@@ -357,7 +405,7 @@ def get_booking(request):
         data = json.loads(request.body)
         bookings = Booking.objects.filter(booking_date=data['date'], booking_time=data['time']).select_related('client', 'table', 'creator').order_by('table__reference')
         bookings_list = list(bookings.values())
-        #print(bookings_list)
+        #print('GET BOOKING: ', bookings_list)
         bookings_full = []
         for booking in bookings_list:
             client = bookings.get(pk=booking['id']).client
@@ -380,7 +428,6 @@ def get_booking(request):
         return  JsonResponse(bookings_full, safe=False)
     else:
         return HttpResponseNotAllowed(['POST'])
-
 
 
 
