@@ -326,7 +326,7 @@ details_booker.addEventListener('input', border_defaulter);
 /// When a matched client suggestion is clicked
 const autocomplete_matcher_details = (event) => {
     // hide matchers list
-    details_matchers.style.display = 'none';
+    details_matchers.parentElement.setAttribute('class', 'none');
     // display matcher details
     const details = JSON.parse(event.target.dataset.matcher_details);
     details_foreign_num.checked = details.is_foreign_phone;
@@ -335,11 +335,13 @@ const autocomplete_matcher_details = (event) => {
     details_last.value = details.last_name;
     if (details.is_disabled) {
         details_alert.innerText = `This client need a table accessable for disabled`;
-        details_alert.style.display = 'block';
+        details_alert.style.opacity = 1;
+        details_alert.parentElement.removeAttribute('class');
     }
-    if (details.is_not) {
-        details_alert.innerText += `This client is not welcome, see the note on his details`;
-        details_alert.style.display = 'block';
+    if (details.is_not_welcome) {
+        details_alert.innerText = `This client is not welcome, see the note on his details`;
+        details_alert.style.opacity = 1;
+        details_alert.parentElement.removeAttribute('class');
     }
 }
 
@@ -393,6 +395,3 @@ details_phone.addEventListener('focusout', () => {
         details_matchers.style.display = 'none';
     }, 500)
 })
-
-
-///// LUNDI RESTE A CHECKER LE BON FCTIONNT DE L AUTOCOMPLETE (AVEC CLIENT DISABLED ET NOT_WELCOME) ET PEUT ETRE AJOUTER CHAMP "DISABLED"

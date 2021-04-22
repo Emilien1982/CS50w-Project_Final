@@ -11,8 +11,13 @@ const modal_list = document.querySelector('#detailsModal tbody');
 
 /* Handle click on 'delete' btn */
 const handle_delete = event => {
-    const booking_row = event.target.parentElement.parentElement;
-    const booking_id = event.target.dataset.booking_id;
+    // handle_delete can come from clicking the delete button or the <span> in the button.
+    // So to get the table row, it's necessary to 'bubble up' elements from the event.target until the row is reached 
+    let booking_row = event.target.parentElement.parentElement;
+    while (booking_row.tagName.toLowerCase() !== 'tr') {
+        booking_row = booking_row.parentElement;
+    }
+    const booking_id = booking_row.dataset.booking_id;
     const confirm = window.confirm("Are you sure to delete this booking?");
     if (confirm) {
         fetch(`/booking_delete/${booking_id}`)
@@ -31,8 +36,13 @@ const handle_delete = event => {
 
 /* Handle click on 'honored' btn */
 const handle_honored = event => {
-        const booking_row = event.target.parentElement.parentElement;
-        const booking_id = event.target.dataset.booking_id;
+        // handle_honored can come from clicking the honored button or the <span> in the button.
+        // So to get the table row, it's necessary to 'bubble up' elements from the event.target until the row is reached 
+        let booking_row = event.target.parentElement.parentElement;
+        while (booking_row.tagName.toLowerCase() !== 'tr') {
+            booking_row = booking_row.parentElement;
+        }
+        const booking_id = booking_row.dataset.booking_id;
         fetch(`/booking_honored/${booking_id}`)
         .then(resp =>{
             if (resp.status !== 200) {
@@ -90,10 +100,11 @@ const fillUp_modal = async (date, time) => {
     // Fill up the list
     for (const booking of bookings) {
         const new_row = document.createElement('tr');
+        new_row.setAttribute('data-booking_id', `${booking.id}`);
 
         new_row.innerHTML = `
         <td>
-        <button type="button" class="btn btn-sm btn-danger delete_booking" data-booking_id="${booking.id}">Del<span class='optional-data'>ete</span></button>
+        <button type="button" class="btn btn-sm btn-danger delete_booking">Del<span class='optional-data'>ete</span></button>
         </td>
         `
         if (booking.is_wanted_table) {
@@ -108,7 +119,7 @@ const fillUp_modal = async (date, time) => {
         <td class="optional-data">${booking.creator_short_name}</td>
         <td class="optional-data">${booking.note}</td>
         <td>
-        <button type="button" class="btn btn-sm btn-primary honored_booking" data-booking_id="${booking.id}">Hon<span class='optional-data'>ored</span></button>
+        <button type="button" class="btn btn-sm btn-primary honored_booking">Hon<span class='optional-data'>ored</span></button>
         </td>
         `;
         // Set line-throuh if the booking has been honored already
