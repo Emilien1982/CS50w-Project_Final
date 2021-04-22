@@ -249,7 +249,6 @@ def staff_delete(request, staff_id):
 
 
 # Returns all the possibles bookings (from today to the next 31 days) regarding the criteria of search
-@login_required
 @csrf_exempt
 def booking_api(request):
     if request.method == 'POST':
