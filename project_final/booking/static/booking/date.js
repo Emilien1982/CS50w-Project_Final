@@ -1,4 +1,3 @@
-
 const date_end_input = document.getElementById("date_end");
 const date_booking_conflits = document.getElementById("date-booking-conflits");
 
